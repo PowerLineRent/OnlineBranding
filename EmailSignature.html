@@ -107,6 +107,12 @@
             margin-bottom: 14px;
         }
 
+        .signature-wrap {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
         .preview-label {
             font-size: 11px;
             text-transform: uppercase;
@@ -225,6 +231,51 @@
             padding: 1px 5px;
             font-size: 11px;
         }
+
+        @media (max-width: 900px) {
+            body { padding: 16px; }
+
+            .layout {
+                flex-direction: column;
+                gap: 14px;
+            }
+
+            .form-panel,
+            .right-panel {
+                width: 100%;
+            }
+
+            .form-panel {
+                max-width: none;
+            }
+        }
+
+        @media (max-width: 640px) {
+            body { padding: 12px; }
+
+            .preview-box,
+            .form-panel,
+            .mobile-share,
+            .instructions {
+                padding: 14px;
+            }
+
+            .actions {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+            }
+
+            .actions .status-msg {
+                min-height: 18px;
+            }
+
+            button.copy-btn,
+            button.secondary-btn {
+                width: 100%;
+                padding: 12px 14px;
+            }
+        }
     </style>
 </head>
 
@@ -289,6 +340,7 @@
                 <div class="preview-label">Preview</div>
 
                 <!-- =================== SIGNATURE START =================== -->
+                <div class="signature-wrap">
                 <div id="signature">
                     <table cellspacing="0" cellpadding="0"
                         style="FONT-FAMILY: Aptos, Calibri, sans-serif; COLOR: #000080; width:480px; background: transparent !important;">
@@ -377,6 +429,7 @@
                         </tbody>
                     </table>
                 </div>
+                </div>
                 <!-- =================== SIGNATURE END =================== -->
             </div>
 
@@ -407,13 +460,32 @@
             </div>
 
             <div class="instructions">
-                <h2>How to add to Outlook</h2>
+                <h2>How to add your signature</h2>
+
+                <p style="margin: 0 0 8px;"><strong>Outlook desktop (Windows/Mac)</strong></p>
                 <ol>
                     <li>Fill in your details on the left.</li>
                     <li>Click <strong>Copy Signature</strong> above.</li>
                     <li>In Outlook: <strong>File &rarr; Options &rarr; Mail &rarr; Signatures</strong>.</li>
-                    <li>Create or select a signature, click inside the text area, press <kbd>Ctrl</kbd>+<kbd>V</kbd>.</li>
+                    <li>Create or select a signature, click inside the text area, then press <kbd>Ctrl</kbd>+<kbd>V</kbd> (or <kbd>Cmd</kbd>+<kbd>V</kbd> on Mac).</li>
+                    <li>Set the signature you created as the default for both <strong>New messages</strong> and <strong>Replies/forwards</strong>.</li>
                     <li>Click <strong>OK</strong>.</li>
+                </ol>
+
+                <p style="margin: 12px 0 8px;"><strong>Outlook mobile app (iPhone/Android)</strong></p>
+                <ol>
+                    <li>Open Outlook app &rarr; tap your profile icon &rarr; tap <strong>Settings</strong> (gear).</li>
+                    <li>Tap <strong>Signature</strong>.</li>
+                    <li>Paste your text signature and save.</li>
+                    <li>If available in your version, enable automatic signature for new emails and replies.</li>
+                </ol>
+
+                <p style="margin: 12px 0 8px;"><strong>Gmail (web)</strong></p>
+                <ol>
+                    <li>Open Gmail &rarr; click <strong>Settings</strong> (gear) &rarr; <strong>See all settings</strong>.</li>
+                    <li>In <strong>General &rarr; Signature</strong>, create a new signature and paste your signature.</li>
+                    <li>Set <strong>Signature defaults</strong> for both <strong>For new emails use</strong> and <strong>On reply/forward use</strong>.</li>
+                    <li>Scroll down and click <strong>Save Changes</strong>.</li>
                 </ol>
             </div>
         </div>
@@ -430,6 +502,7 @@
             addr1: 'f-addr1',
             addr2: 'f-addr2'
         };
+        const STORAGE_KEY = 'plrei-email-signature-v1';
         const DEFAULT_VALUES = Object.fromEntries(
             Object.entries(FIELD_IDS).map(([key, id]) => [key, document.getElementById(id).value])
         );
@@ -447,29 +520,55 @@
             };
         }
 
-        function toCustomizedParams(data) {
-            const params = new URLSearchParams();
+        function getCustomizedData(data) {
+            const customized = {};
             Object.keys(FIELD_IDS).forEach((key) => {
                 const currentValue = data[key] ?? '';
                 const defaultValue = DEFAULT_VALUES[key] ?? '';
                 if (currentValue !== defaultValue) {
-                    params.set(key, currentValue);
+                    customized[key] = currentValue;
                 }
             });
-            return params;
+            return customized;
+        }
+
+        function encodeState(data) {
+            const json = JSON.stringify(data);
+            const bytes = new TextEncoder().encode(json);
+            let binary = '';
+            bytes.forEach((b) => {
+                binary += String.fromCharCode(b);
+            });
+            return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
+        }
+
+        function decodeState(encoded) {
+            const normalized = encoded.replace(/-/g, '+').replace(/_/g, '/');
+            const padded = normalized + '='.repeat((4 - (normalized.length % 4)) % 4);
+            const binary = atob(padded);
+            const bytes = Uint8Array.from(binary, (ch) => ch.charCodeAt(0));
+            const json = new TextDecoder().decode(bytes);
+            return JSON.parse(json);
         }
 
         function buildPermalink() {
             const url = new URL(window.location.href);
-            const params = toCustomizedParams(getFormData());
+            const customized = getCustomizedData(getFormData());
+            const params = new URLSearchParams();
+
+            if (Object.keys(customized).length > 0) {
+                params.set('s', encodeState(customized));
+            }
+
             url.search = params.toString();
             url.hash = '';
             return url.toString();
         }
 
-        function syncAddressBar() {
+        function clearAddressBar() {
             const url = new URL(window.location.href);
-            url.search = toCustomizedParams(getFormData()).toString();
+            if (!url.search && !url.hash) return;
+            url.search = '';
             url.hash = '';
             window.history.replaceState({}, '', url.toString());
         }
@@ -478,11 +577,49 @@
             const params = new URLSearchParams(window.location.search);
             if (!params.toString()) return;
 
+            if (params.has('s')) {
+                try {
+                    const decoded = decodeState(params.get('s'));
+                    Object.keys(FIELD_IDS).forEach((key) => {
+                        if (typeof decoded[key] === 'string') {
+                            document.getElementById(FIELD_IDS[key]).value = decoded[key];
+                        }
+                    });
+                    return;
+                } catch (e) {
+                    // Fall through to legacy query param hydration.
+                }
+            }
+
             Object.keys(FIELD_IDS).forEach((key) => {
                 if (params.has(key)) {
                     document.getElementById(FIELD_IDS[key]).value = params.get(key);
                 }
             });
+        }
+
+        function saveFormData() {
+            const data = getFormData();
+            try {
+                window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+            } catch (e) {
+                // Ignore storage failures (private mode/quota/etc.)
+            }
+        }
+
+        function hydrateFromStorage() {
+            try {
+                const raw = window.localStorage.getItem(STORAGE_KEY);
+                if (!raw) return;
+                const stored = JSON.parse(raw);
+                Object.keys(FIELD_IDS).forEach((key) => {
+                    if (typeof stored[key] === 'string') {
+                        document.getElementById(FIELD_IDS[key]).value = stored[key];
+                    }
+                });
+            } catch (e) {
+                // Ignore invalid storage payloads
+            }
         }
 
         function setMobileStatus(message, isError) {
@@ -493,7 +630,32 @@
             statusEl.style.display = message ? 'inline' : 'none';
         }
 
-        function update(syncUrl = true) {
+        function syncRecipientEmailDefault() {
+            const emailInput = document.getElementById('f-email');
+            const recipientInput = document.getElementById('mobile-recipient');
+            const currentRecipient = recipientInput.value.trim();
+            const recipientUntouched = !currentRecipient || currentRecipient === emailInput.dataset.lastEmail;
+
+            if (recipientUntouched) {
+                recipientInput.value = emailInput.value.trim();
+            }
+
+            emailInput.dataset.lastEmail = emailInput.value.trim();
+        }
+
+        function refreshPermalink() {
+            document.getElementById('permalink-output').value = buildPermalink();
+            saveFormData();
+        }
+
+        function setupPermalinkBlurUpdates() {
+            Object.values(FIELD_IDS).forEach((id) => {
+                const el = document.getElementById(id);
+                el.addEventListener('blur', refreshPermalink);
+            });
+        }
+
+        function update(syncUrl = false) {
             const data = getFormData();
             const name = data.name;
             const title = data.title;
@@ -519,6 +681,7 @@
             document.getElementById('sig-email').textContent = email;
             document.getElementById('sig-email-link').href = 'mailto:' + email;
             document.getElementById('sig-email-row').style.display = email.trim() ? '' : 'none';
+            syncRecipientEmailDefault();
 
             document.getElementById('sig-web-row').style.display = '';
 
@@ -528,8 +691,7 @@
             document.getElementById('sig-addr-row').style.display = (addr1 || addr2) ? '' : 'none';
             document.getElementById('sig-addr-row').style.height = (addr1 && addr2) ? '36px' : '26px';
 
-            document.getElementById('permalink-output').value = buildPermalink();
-            if (syncUrl) syncAddressBar();
+            if (syncUrl) refreshPermalink();
         }
 
         async function copySignature(btn) {
@@ -627,8 +789,12 @@
             }
         }
 
+        hydrateFromStorage();
         hydrateFromPermalink();
+        clearAddressBar();
         update(false);
+        refreshPermalink();
+        setupPermalinkBlurUpdates();
     </script>
 </body>
 
