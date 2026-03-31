@@ -29,6 +29,7 @@
             { name: 'icon-link',    src: 'https://cdn2.hubspot.net/hubfs/53/tools/email-signature-generator/icons/link-icon-dark-2x.png' },
             { name: 'icon-address', src: 'https://cdn2.hubspot.net/hubfs/53/tools/email-signature-generator/icons/address-icon-dark-2x.png' },
         ];
+        // Upload these to: https://github.com/PowerLineRent/OnlineBranding/tree/main/EmailSignature/
 
         const container = document.getElementById('icons');
 
@@ -41,7 +42,7 @@
             canvas.height = SIZE;
 
             const label = document.createElement('p');
-            label.textContent = name + '.webp';
+            label.textContent = name + '.png';
 
             const link = document.createElement('a');
             link.className = 'dl';
@@ -59,9 +60,9 @@
                 ctx.fillStyle = BG;
                 ctx.fillRect(0, 0, SIZE, SIZE);
                 ctx.drawImage(img, 0, 0, SIZE, SIZE);
-                const dataUrl = canvas.toDataURL('image/webp', 1.0);
+                const dataUrl = canvas.toDataURL('image/png', 1.0);
                 link.href = dataUrl;
-                link.download = name + '.webp';
+                link.download = name + '.png';
             };
             img.onerror = () => {
                 ctx.fillStyle = BG;
