@@ -5,10 +5,5 @@
       "source": "/EmailSignature",
       "destination": "/EmailSignature.html"
     }
-  ],
-  "functions": {
-    "api/*.js": {
-      "runtime": "nodejs22.x"
-    }
-  }
+  ]
 }
