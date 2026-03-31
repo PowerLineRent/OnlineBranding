@@ -460,13 +460,32 @@
             </div>
 
             <div class="instructions">
-                <h2>How to add to Outlook</h2>
+                <h2>How to add your signature</h2>
+
+                <p style="margin: 0 0 8px;"><strong>Outlook desktop (Windows/Mac)</strong></p>
                 <ol>
                     <li>Fill in your details on the left.</li>
                     <li>Click <strong>Copy Signature</strong> above.</li>
                     <li>In Outlook: <strong>File &rarr; Options &rarr; Mail &rarr; Signatures</strong>.</li>
-                    <li>Create or select a signature, click inside the text area, press <kbd>Ctrl</kbd>+<kbd>V</kbd>.</li>
+                    <li>Create or select a signature, click inside the text area, then press <kbd>Ctrl</kbd>+<kbd>V</kbd> (or <kbd>Cmd</kbd>+<kbd>V</kbd> on Mac).</li>
+                    <li>Set the signature you created as the default for both <strong>New messages</strong> and <strong>Replies/forwards</strong>.</li>
                     <li>Click <strong>OK</strong>.</li>
+                </ol>
+
+                <p style="margin: 12px 0 8px;"><strong>Outlook mobile app (iPhone/Android)</strong></p>
+                <ol>
+                    <li>Open Outlook app &rarr; tap your profile icon &rarr; tap <strong>Settings</strong> (gear).</li>
+                    <li>Tap <strong>Signature</strong>.</li>
+                    <li>Paste your text signature and save.</li>
+                    <li>If available in your version, enable automatic signature for new emails and replies.</li>
+                </ol>
+
+                <p style="margin: 12px 0 8px;"><strong>Gmail (web)</strong></p>
+                <ol>
+                    <li>Open Gmail &rarr; click <strong>Settings</strong> (gear) &rarr; <strong>See all settings</strong>.</li>
+                    <li>In <strong>General &rarr; Signature</strong>, create a new signature and paste your signature.</li>
+                    <li>Set <strong>Signature defaults</strong> for both <strong>For new emails use</strong> and <strong>On reply/forward use</strong>.</li>
+                    <li>Scroll down and click <strong>Save Changes</strong>.</li>
                 </ol>
             </div>
         </div>
@@ -483,6 +502,7 @@
             addr1: 'f-addr1',
             addr2: 'f-addr2'
         };
+        const STORAGE_KEY = 'plrei-email-signature-v1';
         const DEFAULT_VALUES = Object.fromEntries(
             Object.entries(FIELD_IDS).map(([key, id]) => [key, document.getElementById(id).value])
         );
@@ -538,6 +558,30 @@
             });
         }
 
+        function saveFormData() {
+            const data = getFormData();
+            try {
+                window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+            } catch (e) {
+                // Ignore storage failures (private mode/quota/etc.)
+            }
+        }
+
+        function hydrateFromStorage() {
+            try {
+                const raw = window.localStorage.getItem(STORAGE_KEY);
+                if (!raw) return;
+                const stored = JSON.parse(raw);
+                Object.keys(FIELD_IDS).forEach((key) => {
+                    if (typeof stored[key] === 'string') {
+                        document.getElementById(FIELD_IDS[key]).value = stored[key];
+                    }
+                });
+            } catch (e) {
+                // Ignore invalid storage payloads
+            }
+        }
+
         function setMobileStatus(message, isError) {
             const statusEl = document.getElementById('mobileStatus');
             statusEl.textContent = message;
@@ -546,9 +590,23 @@
             statusEl.style.display = message ? 'inline' : 'none';
         }
 
+        function syncRecipientEmailDefault() {
+            const emailInput = document.getElementById('f-email');
+            const recipientInput = document.getElementById('mobile-recipient');
+            const currentRecipient = recipientInput.value.trim();
+            const recipientUntouched = !currentRecipient || currentRecipient === emailInput.dataset.lastEmail;
+
+            if (recipientUntouched) {
+                recipientInput.value = emailInput.value.trim();
+            }
+
+            emailInput.dataset.lastEmail = emailInput.value.trim();
+        }
+
         function refreshPermalink() {
             document.getElementById('permalink-output').value = buildPermalink();
             syncAddressBar();
+            saveFormData();
         }
 
         function setupPermalinkBlurUpdates() {
@@ -584,6 +642,7 @@
             document.getElementById('sig-email').textContent = email;
             document.getElementById('sig-email-link').href = 'mailto:' + email;
             document.getElementById('sig-email-row').style.display = email.trim() ? '' : 'none';
+            syncRecipientEmailDefault();
 
             document.getElementById('sig-web-row').style.display = '';
 
@@ -691,6 +750,7 @@
             }
         }
 
+        hydrateFromStorage();
         hydrateFromPermalink();
         update(false);
         refreshPermalink();
