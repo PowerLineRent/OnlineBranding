@@ -120,6 +120,7 @@
             gap: 12px;
             align-items: center;
             margin-bottom: 14px;
+            flex-wrap: wrap;
         }
 
         button.copy-btn {
@@ -136,10 +137,65 @@
         button.copy-btn:hover { background: #0000aa; }
         button.copy-btn.success { background: #2a7d2a; }
 
+        button.secondary-btn {
+            background: #ffffff;
+            color: #000080;
+            border: 1px solid #000080;
+            padding: 10px 22px;
+            font-size: 14px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.15s, color 0.15s;
+        }
+
+        button.secondary-btn:hover {
+            background: #000080;
+            color: #fff;
+        }
+
         .status-msg {
             font-size: 13px;
             color: #2a7d2a;
             display: none;
+        }
+
+        .status-msg.error { color: #a02a2a; }
+
+        .mobile-share {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin-bottom: 14px;
+        }
+
+        .mobile-share h2 {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            color: #999;
+            margin: 0 0 8px;
+        }
+
+        .mobile-share p {
+            margin: 0 0 12px;
+            font-size: 13px;
+            color: #555;
+        }
+
+        .mobile-share input {
+            width: 100%;
+            padding: 7px 9px;
+            font-size: 13px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            color: #222;
+            font-family: Arial, sans-serif;
+        }
+
+        .mobile-share input[readonly] {
+            background: #f8f8fb;
+            color: #555;
         }
 
         .instructions {
@@ -329,6 +385,27 @@
                 <span class="status-msg" id="statusMsg">Copied! Now paste into Outlook.</span>
             </div>
 
+            <div class="mobile-share">
+                <h2>Send To Mobile</h2>
+                <p>Create a permalink for your customized signature fields, then copy it or email it.</p>
+
+                <div class="field">
+                    <label>Permalink</label>
+                    <input id="permalink-output" type="text" readonly>
+                </div>
+
+                <div class="field">
+                    <label>Recipient Email</label>
+                    <input id="mobile-recipient" type="email" placeholder="you@phone-email-gateway.com or your mobile email">
+                </div>
+
+                <div class="actions">
+                    <button class="copy-btn" onclick="copyPermalink(this)">Copy Permalink</button>
+                    <button class="secondary-btn" onclick="sendPermalinkEmail(this)">Email Link</button>
+                    <span class="status-msg" id="mobileStatus"></span>
+                </div>
+            </div>
+
             <div class="instructions">
                 <h2>How to add to Outlook</h2>
                 <ol>
@@ -342,18 +419,92 @@
         </div>
     </div>
 
-    <script>
-        function update() {
-            const name  = document.getElementById('f-name').value;
-            const title = document.getElementById('f-title').value;
-            const office = document.getElementById('f-office').value;
-            const mobile = document.getElementById('f-mobile').value;
-            const fax    = document.getElementById('f-fax').value.trim();
-            const email  = document.getElementById('f-email').value;
-            const addr1  = document.getElementById('f-addr1').value.trim();
-            const addr2  = document.getElementById('f-addr2').value.trim();
+        <script>
+        const FIELD_IDS = {
+            name: 'f-name',
+            title: 'f-title',
+            office: 'f-office',
+            mobile: 'f-mobile',
+            fax: 'f-fax',
+            email: 'f-email',
+            addr1: 'f-addr1',
+            addr2: 'f-addr2'
+        };
+        const DEFAULT_VALUES = Object.fromEntries(
+            Object.entries(FIELD_IDS).map(([key, id]) => [key, document.getElementById(id).value])
+        );
 
-            document.getElementById('sig-name').textContent  = name;
+        function getFormData() {
+            return {
+                name: document.getElementById('f-name').value,
+                title: document.getElementById('f-title').value,
+                office: document.getElementById('f-office').value,
+                mobile: document.getElementById('f-mobile').value,
+                fax: document.getElementById('f-fax').value.trim(),
+                email: document.getElementById('f-email').value,
+                addr1: document.getElementById('f-addr1').value.trim(),
+                addr2: document.getElementById('f-addr2').value.trim()
+            };
+        }
+
+        function toCustomizedParams(data) {
+            const params = new URLSearchParams();
+            Object.keys(FIELD_IDS).forEach((key) => {
+                const currentValue = data[key] ?? '';
+                const defaultValue = DEFAULT_VALUES[key] ?? '';
+                if (currentValue !== defaultValue) {
+                    params.set(key, currentValue);
+                }
+            });
+            return params;
+        }
+
+        function buildPermalink() {
+            const url = new URL(window.location.href);
+            const params = toCustomizedParams(getFormData());
+            url.search = params.toString();
+            url.hash = '';
+            return url.toString();
+        }
+
+        function syncAddressBar() {
+            const url = new URL(window.location.href);
+            url.search = toCustomizedParams(getFormData()).toString();
+            url.hash = '';
+            window.history.replaceState({}, '', url.toString());
+        }
+
+        function hydrateFromPermalink() {
+            const params = new URLSearchParams(window.location.search);
+            if (!params.toString()) return;
+
+            Object.keys(FIELD_IDS).forEach((key) => {
+                if (params.has(key)) {
+                    document.getElementById(FIELD_IDS[key]).value = params.get(key);
+                }
+            });
+        }
+
+        function setMobileStatus(message, isError) {
+            const statusEl = document.getElementById('mobileStatus');
+            statusEl.textContent = message;
+            statusEl.classList.remove('error');
+            if (isError) statusEl.classList.add('error');
+            statusEl.style.display = message ? 'inline' : 'none';
+        }
+
+        function update(syncUrl = true) {
+            const data = getFormData();
+            const name = data.name;
+            const title = data.title;
+            const office = data.office;
+            const mobile = data.mobile;
+            const fax = data.fax;
+            const email = data.email;
+            const addr1 = data.addr1;
+            const addr2 = data.addr2;
+
+            document.getElementById('sig-name').textContent = name;
             document.getElementById('sig-title').textContent = title;
 
             document.getElementById('sig-office').textContent = office;
@@ -366,22 +517,28 @@
             document.getElementById('sig-fax-row').style.display = fax ? '' : 'none';
 
             document.getElementById('sig-email').textContent = email;
-            document.getElementById('sig-email-link').href   = 'mailto:' + email;
+            document.getElementById('sig-email-link').href = 'mailto:' + email;
             document.getElementById('sig-email-row').style.display = email.trim() ? '' : 'none';
 
-            document.getElementById('sig-web-row').style.display = ''; // fixed URL, always shown
+            document.getElementById('sig-web-row').style.display = '';
 
             document.getElementById('sig-addr1').textContent = addr1;
             document.getElementById('sig-addr2').textContent = addr2;
             document.getElementById('sig-addr-br').style.display = (addr1 && addr2) ? '' : 'none';
             document.getElementById('sig-addr-row').style.display = (addr1 || addr2) ? '' : 'none';
-            // Single line: compact height; two lines: taller
             document.getElementById('sig-addr-row').style.height = (addr1 && addr2) ? '36px' : '26px';
+
+            document.getElementById('permalink-output').value = buildPermalink();
+            if (syncUrl) syncAddressBar();
         }
 
         async function copySignature(btn) {
             const signatureEl = document.getElementById('signature');
-            const html = signatureEl.innerHTML;
+            const clone = signatureEl.cloneNode(true);
+            clone.querySelectorAll('*').forEach(el => {
+                if (el.style.display === 'none') el.remove();
+            });
+            const html = clone.innerHTML;
 
             try {
                 await navigator.clipboard.write([
@@ -407,10 +564,73 @@
                 const sel = window.getSelection();
                 sel.removeAllRanges();
                 sel.addRange(range);
-                alert('Auto-copy failed. The signature is now selected — press Ctrl+C to copy manually.');
+                alert('Auto-copy failed. The signature is now selected - press Ctrl+C to copy manually.');
             }
         }
+
+        async function copyPermalink(btn) {
+            const link = buildPermalink();
+
+            try {
+                await navigator.clipboard.writeText(link);
+                btn.textContent = 'Copied!';
+                btn.classList.add('success');
+                setMobileStatus('Permalink copied.', false);
+
+                setTimeout(() => {
+                    btn.textContent = 'Copy Permalink';
+                    btn.classList.remove('success');
+                }, 3000);
+            } catch (err) {
+                const permalinkInput = document.getElementById('permalink-output');
+                permalinkInput.focus();
+                permalinkInput.select();
+                setMobileStatus('Auto-copy failed. The permalink is selected; press Ctrl+C.', true);
+            }
+        }
+
+        async function sendPermalinkEmail(btn) {
+            const recipient = document.getElementById('mobile-recipient').value.trim();
+            const link = buildPermalink();
+
+            if (!recipient || !recipient.includes('@')) {
+                setMobileStatus('Enter a valid recipient email before sending.', true);
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Sending...';
+            setMobileStatus('', false);
+
+            try {
+                const response = await fetch('/api/send-mobile-link', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        to: recipient,
+                        link,
+                        signature: getFormData()
+                    })
+                });
+
+                const payload = await response.json();
+                if (!response.ok) {
+                    throw new Error(payload.error || 'Failed to send email.');
+                }
+
+                setMobileStatus('Email sent successfully.', false);
+            } catch (err) {
+                setMobileStatus(err.message || 'Unable to send email.', true);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Email Link';
+            }
+        }
+
+        hydrateFromPermalink();
+        update(false);
     </script>
 </body>
 
 </html>
+
