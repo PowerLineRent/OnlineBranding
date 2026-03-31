@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>PLREI Email Signature Generator</title>
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f0f5;
+            margin: 0;
+            padding: 24px;
+            color: #333;
+        }
+
+        h1 {
+            font-size: 20px;
+            color: #000080;
+            margin: 0 0 4px;
+        }
+
+        p.subtitle {
+            font-size: 13px;
+            color: #666;
+            margin: 0 0 20px;
+        }
+
+        .layout {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        /* ── FORM ── */
+        .form-panel {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            width: 280px;
+            flex-shrink: 0;
+        }
+
+        .form-panel h2 {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            color: #999;
+            margin: 0 0 14px;
+        }
+
+        .field {
+            margin-bottom: 12px;
+        }
+
+        .field label {
+            display: block;
+            font-size: 11px;
+            font-weight: bold;
+            color: #555;
+            margin-bottom: 3px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .field input {
+            width: 100%;
+            padding: 7px 9px;
+            font-size: 13px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            color: #222;
+            font-family: Arial, sans-serif;
+        }
+
+        .field input:focus {
+            outline: none;
+            border-color: #000080;
+        }
+
+        .field input.optional {
+            color: #888;
+        }
+
+        .divider {
+            border: none;
+            border-top: 1px solid #eee;
+            margin: 14px 0;
+        }
+
+        /* ── RIGHT PANEL ── */
+        .right-panel {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .preview-box {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 14px;
+        }
+
+        .preview-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #999;
+            margin-bottom: 14px;
+        }
+
+        .actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+
+        button.copy-btn {
+            background: #000080;
+            color: #fff;
+            border: none;
+            padding: 10px 22px;
+            font-size: 14px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        button.copy-btn:hover { background: #0000aa; }
+        button.copy-btn.success { background: #2a7d2a; }
+
+        .status-msg {
+            font-size: 13px;
+            color: #2a7d2a;
+            display: none;
+        }
+
+        .instructions {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 16px 20px;
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        .instructions h2 {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            color: #999;
+            margin: 0 0 10px;
+        }
+
+        .instructions ol { margin: 0; padding-left: 18px; }
+        .instructions li { margin-bottom: 3px; }
+
+        .instructions kbd {
+            background: #eee;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            padding: 1px 5px;
+            font-size: 11px;
+        }
+    </style>
+</head>
+
+<body>
+    <div style="max-width:1000px; margin:0 auto 16px;">
+        <h1>PLREI Email Signature Generator</h1>
+        <p class="subtitle">Fill in your details — the preview updates live. Then copy and paste into Outlook.</p>
+    </div>
+
+    <div class="layout">
+
+        <!-- ── FORM ── -->
+        <div class="form-panel">
+            <h2>Your Details</h2>
+
+            <div class="field">
+                <label>Full Name</label>
+                <input id="f-name" type="text" value="Tim Kingery" oninput="update()">
+            </div>
+            <div class="field">
+                <label>Title</label>
+                <input id="f-title" type="text" value="President" oninput="update()">
+            </div>
+
+            <hr class="divider">
+
+            <div class="field">
+                <label>Office Phone</label>
+                <input id="f-office" type="text" value="540-682-2126" oninput="update()">
+            </div>
+            <div class="field">
+                <label>Mobile Phone</label>
+                <input id="f-mobile" type="text" value="540-815-3752" oninput="update()">
+            </div>
+            <div class="field">
+                <label>Fax <span style="font-weight:normal;color:#aaa;">(optional)</span></label>
+                <input id="f-fax" type="text" value="540-345-4400" oninput="update()" placeholder="Leave blank to hide">
+            </div>
+
+            <hr class="divider">
+
+            <div class="field">
+                <label>Email</label>
+                <input id="f-email" type="text" value="timkingery@plrei.com" oninput="update()">
+            </div>
+
+            <hr class="divider">
+
+            <div class="field">
+                <label>Address Line 1 <span style="font-weight:normal;color:#aaa;">(optional)</span></label>
+                <input id="f-addr1" type="text" value="42 Noble Avenue, NE" oninput="update()" placeholder="Leave blank to hide">
+            </div>
+            <div class="field">
+                <label>Address Line 2 <span style="font-weight:normal;color:#aaa;">(optional)</span></label>
+                <input id="f-addr2" type="text" value="Roanoke, VA 24012" oninput="update()" placeholder="Leave blank to hide">
+            </div>
+        </div>
+
+        <!-- ── PREVIEW + ACTIONS ── -->
+        <div class="right-panel">
+            <div class="preview-box">
+                <div class="preview-label">Preview</div>
+
+                <!-- =================== SIGNATURE START =================== -->
+                <div id="signature">
+                    <table cellspacing="0" cellpadding="0"
+                        style="FONT-FAMILY: Aptos, Calibri, sans-serif; COLOR: #000080; width:480px; background: transparent !important;">
+                        <tbody>
+                            <tr>
+                                <td width="126"
+                                    style="FONT-SIZE: 10pt; FONT-FAMILY: Aptos, Calibri, sans-serif; COLOR: #000080; line-height:12pt; padding-bottom:23px; padding-right:10px; text-align:center; width:126px; vertical-align: top"
+                                    valign="bottom">
+                                    <a href="https://plrei.com" target="_blank" style="text-decoration: none; border: 0;">
+                                        <img alt="Logo" width="94" border="0"
+                                            style="width:94px; height:auto; border:0; display:block;"
+                                            src="https://raw.githubusercontent.com/PowerLineRent/OnlineBranding/refs/heads/main/EmailSignature/EmailSignatureLogo-V3.png">
+                                    </a>
+                                </td>
+                                <td valign="top"
+                                    style="padding-bottom: 20px; FONT-FAMILY: Aptos, Calibri, sans-serif; vertical-align: top;">
+
+                                    <p style="border-bottom:3px solid #000080; padding-bottom: 5px; margin: 0 0 8px 0;">
+                                        <span style="FONT-SIZE: 20px; COLOR: #000000; FONT-FAMILY: Aptos, Calibri, sans-serif;">
+                                            <strong id="sig-name">Tim Kingery</strong>
+                                        </span>
+                                        <br />
+                                        <span id="sig-title" style="FONT-SIZE: 16px; COLOR: #000000;">President</span>
+                                    </p>
+
+                                    <p style="margin: 0 0 10px 0;">
+                                        <span style="FONT-SIZE: 18px; COLOR: #000000;">
+                                            <strong>Power Line Rent-E-Quip, Inc.</strong>
+                                        </span>
+                                    </p>
+
+                                    <table cellpadding="0" cellspacing="0" border="0" style="font-family: Arial; font-size: 14px; line-height: 1; border-collapse: collapse;">
+                                        <tbody>
+                                            <tr id="sig-addr-row" style="height: 26px;">
+                                                <td width="26" valign="top" style="width: 26px; vertical-align: top; padding-top: 4px;">
+                                                    <img src="https://raw.githubusercontent.com/PowerLineRent/OnlineBranding/refs/heads/main/EmailSignature/icon-address.png" alt="" width="18" height="18" border="0" style="display:block;">
+                                                </td>
+                                                <td style="padding: 0 0 0 4px; font-size: 14px; color: #000000; line-height: 1.5;">
+                                                    <span id="sig-addr1" style="font-size:14px;color:#000000;">42 Noble Avenue, NE</span><br id="sig-addr-br"><span id="sig-addr2" style="font-size:14px;color:#000000;">Roanoke, VA 24012</span>
+                                                </td>
+                                            </tr>
+                                            <tr id="sig-office-row" style="height: 26px;">
+                                                <td width="26" valign="middle" style="width: 26px; vertical-align: middle;">
+                                                    <img src="https://raw.githubusercontent.com/PowerLineRent/OnlineBranding/refs/heads/main/EmailSignature/icon-phone.png" alt="" width="18" height="18" border="0" style="display:block;">
+                                                </td>
+                                                <td style="padding: 0 0 0 4px; font-size: 14px; color: #000000;">
+                                                    <span style="font-size:14px;color:#000000;">Office: <span id="sig-office">540-682-2126</span></span>
+                                                </td>
+                                            </tr>
+                                            <tr id="sig-mobile-row" style="height: 26px;">
+                                                <td width="26" valign="middle" style="width: 26px; vertical-align: middle;">
+                                                    <img src="https://raw.githubusercontent.com/PowerLineRent/OnlineBranding/refs/heads/main/EmailSignature/icon-phone.png" alt="" width="18" height="18" border="0" style="display:block;">
+                                                </td>
+                                                <td style="padding: 0 0 0 4px; font-size: 14px; color: #000000;">
+                                                    <span style="font-size:14px;color:#000000;">Mobile: <span id="sig-mobile">540-815-3752</span></span>
+                                                </td>
+                                            </tr>
+                                            <tr id="sig-fax-row" style="height: 26px;">
+                                                <td width="26" valign="middle" style="width: 26px; vertical-align: middle;">
+                                                    <img src="https://raw.githubusercontent.com/PowerLineRent/OnlineBranding/refs/heads/main/EmailSignature/icon-phone.png" alt="" width="18" height="18" border="0" style="display:block;">
+                                                </td>
+                                                <td style="padding: 0 0 0 4px; font-size: 14px; color: #000000;">
+                                                    <span style="font-size:14px;color:#000000;">Fax: <span id="sig-fax">540-345-4400</span></span>
+                                                </td>
+                                            </tr>
+                                            <tr id="sig-email-row" style="height: 26px;">
+                                                <td width="26" valign="middle" style="width: 26px; vertical-align: middle;">
+                                                    <img src="https://raw.githubusercontent.com/PowerLineRent/OnlineBranding/refs/heads/main/EmailSignature/icon-email.png" alt="" width="18" height="18" border="0" style="display:block;">
+                                                </td>
+                                                <td style="padding: 0 0 0 4px; font-size: 14px; color: #000000;">
+                                                    <a id="sig-email-link" href="mailto:timkingery@plrei.com" style="font-size:14px;color:#000000;text-decoration:none;"><span id="sig-email" style="text-decoration:none;color:#000080;">timkingery@plrei.com</span></a>
+                                                </td>
+                                            </tr>
+                                            <tr id="sig-web-row" style="height: 26px;">
+                                                <td width="26" valign="middle" style="width: 26px; vertical-align: middle;">
+                                                    <img src="https://raw.githubusercontent.com/PowerLineRent/OnlineBranding/refs/heads/main/EmailSignature/icon-link.png" alt="" width="18" height="18" border="0" style="display:block;">
+                                                </td>
+                                                <td style="padding: 0 0 0 4px; font-size: 14px; color: #000080;">
+                                                    <a href="https://www.plrei.com" style="font-size:14px;color:#000080;text-decoration:none;"><span style="text-decoration:none;color:#000080;">www.plrei.com</span></a>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <!-- =================== SIGNATURE END =================== -->
+            </div>
+
+            <div class="actions">
+                <button class="copy-btn" onclick="copySignature(this)">Copy Signature</button>
+                <span class="status-msg" id="statusMsg">Copied! Now paste into Outlook.</span>
+            </div>
+
+            <div class="instructions">
+                <h2>How to add to Outlook</h2>
+                <ol>
+                    <li>Fill in your details on the left.</li>
+                    <li>Click <strong>Copy Signature</strong> above.</li>
+                    <li>In Outlook: <strong>File &rarr; Options &rarr; Mail &rarr; Signatures</strong>.</li>
+                    <li>Create or select a signature, click inside the text area, press <kbd>Ctrl</kbd>+<kbd>V</kbd>.</li>
+                    <li>Click <strong>OK</strong>.</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function update() {
+            const name  = document.getElementById('f-name').value;
+            const title = document.getElementById('f-title').value;
+            const office = document.getElementById('f-office').value;
+            const mobile = document.getElementById('f-mobile').value;
+            const fax    = document.getElementById('f-fax').value.trim();
+            const email  = document.getElementById('f-email').value;
+            const addr1  = document.getElementById('f-addr1').value.trim();
+            const addr2  = document.getElementById('f-addr2').value.trim();
+
+            document.getElementById('sig-name').textContent  = name;
+            document.getElementById('sig-title').textContent = title;
+
+            document.getElementById('sig-office').textContent = office;
+            document.getElementById('sig-office-row').style.display = office.trim() ? '' : 'none';
+
+            document.getElementById('sig-mobile').textContent = mobile;
+            document.getElementById('sig-mobile-row').style.display = mobile.trim() ? '' : 'none';
+
+            document.getElementById('sig-fax').textContent = fax;
+            document.getElementById('sig-fax-row').style.display = fax ? '' : 'none';
+
+            document.getElementById('sig-email').textContent = email;
+            document.getElementById('sig-email-link').href   = 'mailto:' + email;
+            document.getElementById('sig-email-row').style.display = email.trim() ? '' : 'none';
+
+            document.getElementById('sig-web-row').style.display = ''; // fixed URL, always shown
+
+            document.getElementById('sig-addr1').textContent = addr1;
+            document.getElementById('sig-addr2').textContent = addr2;
+            document.getElementById('sig-addr-br').style.display = (addr1 && addr2) ? '' : 'none';
+            document.getElementById('sig-addr-row').style.display = (addr1 || addr2) ? '' : 'none';
+            // Single line: compact height; two lines: taller
+            document.getElementById('sig-addr-row').style.height = (addr1 && addr2) ? '36px' : '26px';
+        }
+
+        async function copySignature(btn) {
+            const signatureEl = document.getElementById('signature');
+            const html = signatureEl.innerHTML;
+
+            try {
+                await navigator.clipboard.write([
+                    new ClipboardItem({
+                        'text/html': new Blob([html], { type: 'text/html' }),
+                        'text/plain': new Blob(['Power Line Rent-E-Quip Email Signature'], { type: 'text/plain' })
+                    })
+                ]);
+
+                btn.textContent = 'Copied!';
+                btn.classList.add('success');
+                const msg = document.getElementById('statusMsg');
+                msg.style.display = 'inline';
+
+                setTimeout(() => {
+                    btn.textContent = 'Copy Signature';
+                    btn.classList.remove('success');
+                    msg.style.display = 'none';
+                }, 3000);
+            } catch (err) {
+                const range = document.createRange();
+                range.selectNodeContents(signatureEl);
+                const sel = window.getSelection();
+                sel.removeAllRanges();
+                sel.addRange(range);
+                alert('Auto-copy failed. The signature is now selected — press Ctrl+C to copy manually.');
+            }
+        }
+    </script>
+</body>
+
+</html>
