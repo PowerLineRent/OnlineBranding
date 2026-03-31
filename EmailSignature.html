@@ -107,6 +107,12 @@
             margin-bottom: 14px;
         }
 
+        .signature-wrap {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
         .preview-label {
             font-size: 11px;
             text-transform: uppercase;
@@ -225,6 +231,51 @@
             padding: 1px 5px;
             font-size: 11px;
         }
+
+        @media (max-width: 900px) {
+            body { padding: 16px; }
+
+            .layout {
+                flex-direction: column;
+                gap: 14px;
+            }
+
+            .form-panel,
+            .right-panel {
+                width: 100%;
+            }
+
+            .form-panel {
+                max-width: none;
+            }
+        }
+
+        @media (max-width: 640px) {
+            body { padding: 12px; }
+
+            .preview-box,
+            .form-panel,
+            .mobile-share,
+            .instructions {
+                padding: 14px;
+            }
+
+            .actions {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+            }
+
+            .actions .status-msg {
+                min-height: 18px;
+            }
+
+            button.copy-btn,
+            button.secondary-btn {
+                width: 100%;
+                padding: 12px 14px;
+            }
+        }
     </style>
 </head>
 
@@ -289,6 +340,7 @@
                 <div class="preview-label">Preview</div>
 
                 <!-- =================== SIGNATURE START =================== -->
+                <div class="signature-wrap">
                 <div id="signature">
                     <table cellspacing="0" cellpadding="0"
                         style="FONT-FAMILY: Aptos, Calibri, sans-serif; COLOR: #000080; width:480px; background: transparent !important;">
@@ -376,6 +428,7 @@
                             </tr>
                         </tbody>
                     </table>
+                </div>
                 </div>
                 <!-- =================== SIGNATURE END =================== -->
             </div>
@@ -493,7 +546,19 @@
             statusEl.style.display = message ? 'inline' : 'none';
         }
 
-        function update(syncUrl = true) {
+        function refreshPermalink() {
+            document.getElementById('permalink-output').value = buildPermalink();
+            syncAddressBar();
+        }
+
+        function setupPermalinkBlurUpdates() {
+            Object.values(FIELD_IDS).forEach((id) => {
+                const el = document.getElementById(id);
+                el.addEventListener('blur', refreshPermalink);
+            });
+        }
+
+        function update(syncUrl = false) {
             const data = getFormData();
             const name = data.name;
             const title = data.title;
@@ -528,8 +593,7 @@
             document.getElementById('sig-addr-row').style.display = (addr1 || addr2) ? '' : 'none';
             document.getElementById('sig-addr-row').style.height = (addr1 && addr2) ? '36px' : '26px';
 
-            document.getElementById('permalink-output').value = buildPermalink();
-            if (syncUrl) syncAddressBar();
+            if (syncUrl) refreshPermalink();
         }
 
         async function copySignature(btn) {
@@ -629,6 +693,8 @@
 
         hydrateFromPermalink();
         update(false);
+        refreshPermalink();
+        setupPermalinkBlurUpdates();
     </script>
 </body>
 
