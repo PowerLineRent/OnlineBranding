@@ -4,42 +4,48 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
 const NAV_ITEMS = [
-  { id: 'overview', label: 'Overview' },
-  { id: 'logo', label: 'Logo' },
-  { id: 'colors', label: 'Colors' },
-  { id: 'typography', label: 'Typography' },
-  { id: 'iconography', label: 'Iconography' },
+  { id: 'overview',     label: 'Overview' },
+  { id: 'logo',         label: 'Logo' },
+  { id: 'colors',       label: 'Colors' },
+  { id: 'typography',   label: 'Typography' },
+  { id: 'iconography',  label: 'Iconography' },
   { id: 'applications', label: 'Applications' },
 ];
 
 export default function SectionNav() {
-  const [active, setActive] = useState('overview');
+  const [active, setActive]     = useState('overview');
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
-          if (entry.isIntersecting) {
-            setActive(entry.target.id);
-          }
+          if (entry.isIntersecting) setActive(entry.target.id);
         }
       },
       { rootMargin: '-20% 0px -70% 0px' }
     );
-
     NAV_ITEMS.forEach(({ id }) => {
       const el = document.getElementById(id);
       if (el) observer.observe(el);
     });
-
     return () => observer.disconnect();
   }, []);
 
   return (
-    <header className="sticky top-0 z-50 bg-white border-b border-plrei-bg-border">
+    /* Yellow bottom stripe mirrors the brand letterhead accent */
+    <header
+      className="sticky top-0 z-50 bg-white border-b-4"
+      style={{ borderBottomColor: '#F5C518' }}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16">
-        <Link href="/" className="flex items-center gap-3 text-plrei-navy font-bold text-lg tracking-tight hover:opacity-80 transition-opacity">
+
+        {/* Logo + name */}
+        <Link
+          href="/"
+          className="flex items-center gap-3 font-bold text-lg tracking-tight hover:opacity-80 transition-opacity"
+          style={{ color: '#000080' }}
+        >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logos/plrei-mark.svg" alt="" className="h-8 w-auto" />
           <span className="hidden sm:block">Brand Guidelines</span>
@@ -53,16 +59,21 @@ export default function SectionNav() {
               href={`#${id}`}
               className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
                 active === id
-                  ? 'bg-plrei-bg-light text-plrei-navy'
+                  ? 'bg-plrei-bg-light text-plrei-navy font-semibold'
                   : 'text-gray-600 hover:text-plrei-navy hover:bg-gray-50'
               }`}
             >
               {label}
             </a>
           ))}
+
+          {/* Yellow CTA — on-brand with authorized yellow */}
           <a
             href="/email-signature"
-            className="ml-3 px-4 py-1.5 rounded-md text-sm font-semibold bg-plrei-navy text-white hover:bg-plrei-navy-hover transition-colors"
+            className="ml-3 px-4 py-1.5 rounded-md text-sm font-bold transition-colors"
+            style={{ backgroundColor: '#F5C518', color: '#000080' }}
+            onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#D4A800')}
+            onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#F5C518')}
           >
             Signature Tool
           </a>
@@ -70,7 +81,7 @@ export default function SectionNav() {
 
         {/* Mobile hamburger */}
         <button
-          onClick={() => setMenuOpen((o) => !o)}
+          onClick={() => setMenuOpen(o => !o)}
           className="md:hidden p-2 rounded-md text-gray-600 hover:text-plrei-navy"
           aria-label="Toggle menu"
         >
@@ -99,7 +110,8 @@ export default function SectionNav() {
           ))}
           <a
             href="/email-signature"
-            className="block px-6 py-3 text-sm font-semibold text-plrei-navy border-t border-plrei-bg-border"
+            className="block px-6 py-3 text-sm font-bold border-t border-plrei-bg-border"
+            style={{ color: '#000080' }}
           >
             Signature Tool →
           </a>
