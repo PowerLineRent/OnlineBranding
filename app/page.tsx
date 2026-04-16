@@ -28,6 +28,14 @@ const LOGO_SOURCE = [
   { name: 'Logo Glow',    hex: '#F6F4B3', usage: 'Soft halo filter on glow-variant logos only',   light: true  },
 ];
 
+// Exact grey values from the crest SVG cls definitions — do not approximate
+const CREST_COLORS = [
+  { name: 'Crest Medium Grey', hex: '#78787A', usage: 'Crest border & outline — cls-1 in SVG source', light: true  },
+  { name: 'Crest Dark Grey',   hex: '#595A5A', usage: 'Crest shadow polygons — cls-2 in SVG source',  light: false },
+  { name: 'Crest Charcoal',    hex: '#3F4042', usage: 'Crest body fill and gradient base stop',        light: false },
+  { name: 'Crest Grad. Dark',  hex: '#4A4A4B', usage: 'Crest gradient — secondary dark stop',          light: false },
+];
+
 // UI support colors for web/digital interfaces
 const UI_SUPPORT = [
   { name: 'Black',        hex: '#000000', usage: 'Primary body text and dark accents',           light: false },
@@ -85,7 +93,7 @@ const LOGOS = [
   {
     file: '/logos/plrei-crest.svg',
     name: 'Crest Variant',
-    desc: 'Logo with shield crest emblem. Use for formal documents, certificates, and official correspondence.',
+    desc: 'Shield crest emblem with two-tone grey detail: #78787A (border) and #595A5A (shadow). Use for formal documents, certificates, and legal correspondence.',
     bg: 'white',
     dark: false,
   },
@@ -129,7 +137,7 @@ export default function BrandPage() {
             <div>
               <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-3">Brand Guidelines</h1>
               <p className="text-lg sm:text-xl max-w-xl" style={{ color: '#FEF9E3' }}>
-                The official reference for Power Line Rent-E-Quip, Inc. identity —
+                The official reference for Power Line Rent-E-Quip,&nbsp;Inc. identity —
                 logos, colors, typography, and more.
               </p>
             </div>
@@ -162,9 +170,14 @@ export default function BrandPage() {
               <p className="section-label">01 — Overview</p>
               <h2 className="section-title">About the Brand</h2>
               <p className="section-body mb-4">
-                Power Line Rent-E-Quip, Inc. (PLREI) is a full-service equipment rental company
+                Power Line Rent-E-Quip,&nbsp;Inc. (PLREI) is a full-service equipment rental company
                 headquartered at 42 Noble Avenue, NE, Roanoke, VA 24012. PLREI serves utility,
                 construction, and infrastructure professionals across the Mid-Atlantic region.
+              </p>
+              <p className="section-body mb-4">
+                The name <strong>POWER LINE RENT-E-QUIP®</strong> is a federally registered
+                trademark (Reg.&nbsp;No.&nbsp;7682616, IC&nbsp;039). Always display the mark with the
+                ® symbol in its first prominent use in any document or communication.
               </p>
               <p className="section-body">
                 The brand&rsquo;s two authorized colors — navy blue and gold yellow — reflect power,
@@ -246,6 +259,7 @@ export default function BrandPage() {
                     'Maintain clear space equal to the height of the bolt on all sides',
                     'Minimum digital width: 80px for the full logo, 32px for the mark',
                     'Use the logo mark alone at sizes below 80px wide',
+                    'Use exact crest greys #78787A and #595A5A — never approximate',
                   ].map((item) => (
                     <li key={item} className="flex gap-2">
                       <span className="mt-0.5 font-bold" style={{ color: '#000080' }}>✓</span>
@@ -341,6 +355,21 @@ export default function BrandPage() {
               </p>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                 {UI_SUPPORT.map((c) => (
+                  <ColorSwatch key={c.hex} {...c} />
+                ))}
+              </div>
+            </div>
+
+            {/* Crest / special-purpose greys */}
+            <div className="mb-10">
+              <h3 className="font-semibold text-gray-900 mb-1">Crest &amp; Special-Purpose Greys</h3>
+              <p className="text-sm text-plrei-text-body mb-4">
+                Exact grey values extracted directly from the crest SVG <code className="bg-gray-100 px-1 rounded text-xs">cls</code> class
+                definitions. <strong>#78787A</strong> and <strong>#595A5A</strong> are the two protected
+                grey tones — do not substitute or approximate them in any reproduction of the crest.
+              </p>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                {CREST_COLORS.map((c) => (
                   <ColorSwatch key={c.hex} {...c} />
                 ))}
               </div>
@@ -594,6 +623,21 @@ export default function BrandPage() {
                 </div>
               </div>
 
+              {/* Trademark */}
+              <div className="card flex flex-col border-t-4" style={{ borderTopColor: '#F5C518' }}>
+                <div className="text-2xl mb-3">™</div>
+                <div className="font-bold text-gray-900 mb-1">Registered Trademark</div>
+                <p className="text-sm text-plrei-text-body mb-4 flex-1">
+                  <strong>POWER LINE RENT-E-QUIP®</strong> is a federally registered trademark of
+                  Power Line Rent-E-Quip, Inc., covering equipment and truck rental services.
+                </p>
+                <div className="space-y-1 text-xs text-gray-500 bg-plrei-bg-light rounded-lg px-3 py-2 font-mono">
+                  <div>Reg. No. &nbsp;&nbsp;<span className="text-gray-800 font-semibold">7682616</span></div>
+                  <div>Serial &nbsp;&nbsp;&nbsp;&nbsp;<span className="text-gray-800">97871840</span></div>
+                  <div>IC 039 — Aerial bucket, sign &amp; forestry truck rental; crane rental &amp; leasing</div>
+                </div>
+              </div>
+
               {/* Contact */}
               <div className="card flex flex-col" style={{ backgroundColor: '#E8ECFF', borderTopWidth: '4px', borderTopColor: '#000080' }}>
                 <div className="text-2xl mb-3">📞</div>
@@ -631,7 +675,7 @@ export default function BrandPage() {
               <div className="flex items-center gap-3">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="/logos/plrei-mark.svg" alt="" className="h-6 w-auto opacity-80" />
-                <span>© {new Date().getFullYear()} Power Line Rent-E-Quip, Inc.</span>
+                <span>© {new Date().getFullYear()} Power Line Rent-E-Quip,&nbsp;Inc. &nbsp;·&nbsp; POWER LINE RENT-E-QUIP® Reg.&nbsp;No.&nbsp;7682616</span>
               </div>
               <div className="flex gap-6">
                 <a href="#overview"  className="hover:text-white transition-colors">Overview</a>
