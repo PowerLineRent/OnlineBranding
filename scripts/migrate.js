@@ -50,5 +50,4 @@ function run(cmd, { ignoreError = false, timeout = 60_000 } = {}) {
   }
 }
 
-run('npx prisma migrate resolve --applied 20260416193956_init_auth', { ignoreError: true });
 run('npx prisma migrate deploy');
