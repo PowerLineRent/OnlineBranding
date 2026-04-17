@@ -213,6 +213,30 @@ function ProviderForm({ initial, isNew, providerKeys, onSave, onCancel }: Provid
         </div>
       )}
 
+      <div className="rounded-md border border-blue-100 bg-blue-50 px-4 py-3">
+        <p className="text-xs font-semibold uppercase tracking-wide text-blue-600 mb-2">
+          {form.type === 'google' ? 'Google Cloud Console setup' : 'Microsoft Entra setup'}
+        </p>
+        {form.type === 'google' ? (
+          <ol className="list-decimal pl-4 space-y-1 text-sm text-gray-700">
+            <li>Open Google Cloud Console and select your project.</li>
+            <li>Go to <strong>APIs &amp; Services → Credentials</strong> and create an OAuth 2.0 Client ID (Web application).</li>
+            <li>Add the callback URL below as an authorized redirect URI.</li>
+            <li>Copy the Client ID and Client Secret into the fields below.</li>
+            <li>Recommended scopes: <code className="text-xs bg-white border border-blue-100 px-1 py-0.5 rounded">openid profile email</code></li>
+          </ol>
+        ) : (
+          <ol className="list-decimal pl-4 space-y-1 text-sm text-gray-700">
+            <li>Open <strong>Microsoft Entra admin center</strong> and go to App registrations.</li>
+            <li>Create or open the app registration for this tenant.</li>
+            <li>Copy the <strong>Directory (tenant) ID</strong> and <strong>Application (client) ID</strong>.</li>
+            <li>Under <strong>Certificates &amp; secrets</strong>, create a new client secret and copy it.</li>
+            <li>Under <strong>Authentication</strong>, add the callback URL below as a web redirect URI.</li>
+            <li>Recommended scopes: <code className="text-xs bg-white border border-blue-100 px-1 py-0.5 rounded">openid profile email</code></li>
+          </ol>
+        )}
+      </div>
+
       <Field label="Display Name">
         <Input value={form.displayName} onChange={(e) => set('displayName', e.target.value)} required />
       </Field>
