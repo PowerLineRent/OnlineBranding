@@ -14,6 +14,15 @@ const credentialsSchema = z.object({
   password: z.string().min(1).max(200),
 });
 
+function resolveAuthSecret(): string | undefined {
+  return (
+    process.env.AUTH_SECRET?.trim() ||
+    process.env.NEXTAUTH_SECRET?.trim() ||
+    process.env.SUPABASE_JWT_SECRET?.trim() ||
+    undefined
+  );
+}
+
 async function ensureAdminBootstrapUser(email: string): Promise<void> {
   const adminEmail = normalizeEmail(process.env.ADMIN_EMAIL ?? DEFAULT_ADMIN_EMAIL);
   if (email !== adminEmail) return;
@@ -135,8 +144,10 @@ function credentialsProvider() {
 }
 
 function buildBaseConfig(): Omit<NextAuthConfig, 'providers'> {
+  const authSecret = resolveAuthSecret();
   return {
     adapter: PrismaAdapter(prisma),
+    secret: authSecret,
     session: { strategy: 'jwt' },
     trustHost: true,
     callbacks: {
