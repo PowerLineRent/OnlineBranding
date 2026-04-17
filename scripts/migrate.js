@@ -2,28 +2,34 @@
 /**
  * Prisma migration script for Vercel builds.
  *
- * On a database that was set up outside of Prisma migrations (no _prisma_migrations
- * table), `migrate deploy` fails with P3005. We baseline the init migration first
- * (marking it as already applied), then deploy any pending migrations normally.
+ * Baselines the init migration on databases set up outside Prisma (P3005),
+ * then deploys any pending migrations. Migration commands use a 30-second
+ * timeout to prevent hanging on pooler connections — Prisma migrate requires
+ * a direct (non-pooled) connection via POSTGRES_URL_NON_POOLING.
  */
 
 const { execSync } = require('child_process');
 
+const TIMEOUT_MS = 30_000;
+
 function run(cmd, { ignoreError = false } = {}) {
   try {
-    execSync(cmd, { stdio: 'inherit' });
+    execSync(cmd, { stdio: 'inherit', timeout: TIMEOUT_MS });
     return true;
-  } catch {
-    if (!ignoreError) throw new Error(`Command failed: ${cmd}`);
+  } catch (err) {
+    if (!ignoreError) {
+      throw err;
+    }
     return false;
   }
 }
 
-// Attempt to baseline the init migration. This is a no-op if it's already recorded.
+// Baseline the init migration. No-op if already recorded; ignored if it times
+// out on a fresh pooler-only environment (migrations will still proceed).
 run(
   'npx prisma migrate resolve --applied 20260416193956_init_auth',
   { ignoreError: true }
 );
 
-// Deploy all pending migrations (including our new one).
+// Deploy all pending migrations.
 run('npx prisma migrate deploy');
