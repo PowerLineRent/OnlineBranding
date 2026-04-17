@@ -64,7 +64,26 @@ export async function POST(req: NextRequest) {
       }
     }
     return NextResponse.json(result);
-  } catch {
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error('[auth][discover] failed', { message, email });
+
+    // Common production misconfiguration: database schema not initialized
+    // (for example missing Prisma migrations on the target Postgres instance).
+    const likelySchemaIssue =
+      message.includes('does not exist') ||
+      message.includes('relation') ||
+      message.includes('table') ||
+      message.includes('P2021') ||
+      message.includes('P2022');
+
+    if (likelySchemaIssue) {
+      return NextResponse.json(
+        { error: 'Authentication database is not initialized. Run Prisma migrations.' },
+        { status: 503 }
+      );
+    }
+
     return NextResponse.json({ error: 'Unable to process sign-in request.' }, { status: 500 });
   }
 }

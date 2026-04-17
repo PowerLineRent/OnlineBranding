@@ -14,6 +14,36 @@ const credentialsSchema = z.object({
   password: z.string().min(1).max(200),
 });
 
+async function ensureAdminBootstrapUser(email: string): Promise<void> {
+  const adminEmail = normalizeEmail(process.env.ADMIN_EMAIL ?? DEFAULT_ADMIN_EMAIL);
+  if (email !== adminEmail) return;
+
+  const adminPasswordHash = (process.env.ADMIN_PASSWORD_HASH ?? '').trim();
+  if (!adminPasswordHash) {
+    authWarn('admin_bootstrap_hash_missing');
+    return;
+  }
+
+  try {
+    await prisma.user.upsert({
+      where: { email: adminEmail },
+      update: {
+        passwordHash: adminPasswordHash,
+        role: 'admin',
+        isActive: true,
+      },
+      create: {
+        email: adminEmail,
+        passwordHash: adminPasswordHash,
+        role: 'admin',
+        isActive: true,
+      },
+    });
+  } catch (error) {
+    authError('admin_bootstrap_failed', error, { email: redactEmail(adminEmail) });
+  }
+}
+
 function redactEmail(email: string): string {
   const [local, domain] = email.split('@');
   if (!local || !domain) return '[invalid-email]';
@@ -51,6 +81,7 @@ function credentialsProvider() {
         }
 
         const email = normalizeEmail(parsed.data.email);
+        await ensureAdminBootstrapUser(email);
         const ip = request?.headers?.get?.('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown';
         const limit = checkRateLimit(`credentials:${ip}:${email}`, 10, 60_000);
         if (!limit.allowed) {

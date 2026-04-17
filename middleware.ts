@@ -1,10 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getToken } from 'next-auth/jwt';
 
 const PUBLIC_PATHS = ['/login', '/invalid-link'];
 const PUBLIC_PREFIXES = ['/api/auth', '/api/signature-link', '/_next', '/static'];
 const PUBLIC_FILES = ['/favicon.ico', '/robots.txt', '/sitemap.xml'];
-const DEFAULT_ADMIN_EMAIL = 'admin@plrei.com';
+const SESSION_COOKIE_NAMES = [
+  '__Secure-authjs.session-token',
+  'authjs.session-token',
+  '__Secure-next-auth.session-token',
+  'next-auth.session-token',
+] as const;
+const SESSION_COOKIE_PREFIXES = [
+  '__Secure-authjs.session-token.',
+  'authjs.session-token.',
+  '__Secure-next-auth.session-token.',
+  'next-auth.session-token.',
+] as const;
 
 function toHex(buffer: ArrayBuffer): string {
   return [...new Uint8Array(buffer)].map((b) => b.toString(16).padStart(2, '0')).join('');
@@ -65,22 +75,13 @@ function redirectToLogin(req: NextRequest): NextResponse {
   return NextResponse.redirect(url);
 }
 
-function redirectToHome(req: NextRequest): NextResponse {
-  return NextResponse.redirect(new URL('/', req.url));
-}
-
-function normalizeEmail(email: string): string {
-  return email.trim().toLowerCase();
-}
-
-function isAdminToken(token: unknown): boolean {
-  if (!token || typeof token !== 'object') return false;
-  const maybeToken = token as { role?: unknown; email?: unknown };
-  const role = typeof maybeToken.role === 'string' ? maybeToken.role.toLowerCase() : '';
-  if (role === 'admin') return true;
-  const email = typeof maybeToken.email === 'string' ? normalizeEmail(maybeToken.email) : '';
-  const adminEmail = normalizeEmail(process.env.ADMIN_EMAIL ?? DEFAULT_ADMIN_EMAIL);
-  return Boolean(email) && email === adminEmail;
+function hasSessionCookie(req: NextRequest): boolean {
+  const cookieNames = req.cookies.getAll().map((cookie) => cookie.name);
+  return cookieNames.some(
+    (cookieName) =>
+      SESSION_COOKIE_NAMES.includes(cookieName as (typeof SESSION_COOKIE_NAMES)[number]) ||
+      SESSION_COOKIE_PREFIXES.some((prefix) => cookieName.startsWith(prefix))
+  );
 }
 
 export async function middleware(req: NextRequest) {
@@ -92,17 +93,11 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  const token = await getToken({
-    req,
-    secret: process.env.AUTH_SECRET,
-  });
-
-  if (!token) {
+  // Do not import next-auth/jwt in middleware edge runtime to avoid
+  // jose CompressionStream/DecompressionStream warnings during Vercel builds.
+  // Route/page handlers still perform full auth and role checks server-side.
+  if (!hasSessionCookie(req)) {
     return redirectToLogin(req);
-  }
-
-  if (pathname.startsWith('/admin') && !isAdminToken(token)) {
-    return redirectToHome(req);
   }
 
   return NextResponse.next();
