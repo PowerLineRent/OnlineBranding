@@ -325,7 +325,7 @@ export default async function BrandPage() {
               <br />
               Brand Reference
             </h1>
-            <p style={{ margin: 0, color: '#E7ECFF', maxWidth: '860px', fontSize: '24px', lineHeight: 1.35 }}>
+            <p style={{ margin: 0, color: '#FFFFFF', maxWidth: '860px', fontSize: '24px', lineHeight: 1.35 }}>
               Official standards for logo usage, color, typography, and signature iconography.
             </p>
           </div>
@@ -340,7 +340,7 @@ export default async function BrandPage() {
               Power Line Rent-E-Quip, Inc. is represented by approved logo files only. Never redraw, retype, recolor,
               stretch, squash, or rebuild the logo from fonts.
             </p>
-            <div className="rounded-xl border p-4" style={{ backgroundColor: '#EFF3FF', borderColor: '#B7C5EE' }}>
+            <div className="rounded-xl border p-4" style={{ backgroundColor: '#FFFFFF', borderColor: '#000080' }}>
               <p className="section-body mb-3">
                 This implementation is aligned to the authoritative PLREI asset library.
               </p>
@@ -348,7 +348,7 @@ export default async function BrandPage() {
                 href="https://plrei.sharepoint.com/sites/PLREIServer/SitePages/Forms-&-Templates.aspx"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-md border font-semibold transition-opacity hover:opacity-90"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-md border font-semibold transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#000080] focus-visible:ring-offset-2"
                 style={{ backgroundColor: '#000080', borderColor: '#000080', color: '#FFFFFF' }}
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -453,7 +453,8 @@ export default async function BrandPage() {
                     href="/letterhead/plrei-letterhead.dotx"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-block px-4 py-2 rounded border border-plrei-bg-border hover:bg-plrei-bg-light"
+                    className="inline-block px-4 py-2 rounded border hover:bg-plrei-bg-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#000080] focus-visible:ring-offset-2"
+                    style={{ borderColor: '#000080' }}
                   >
                     Download Letterhead Template (.dotx)
                   </a>
@@ -485,10 +486,10 @@ export default async function BrandPage() {
             <h2 className="section-title">Email Signature Icons</h2>
             <div
               className="rounded-xl border mb-8 p-5"
-              style={{ backgroundColor: '#000080', borderColor: '#D5DBF5' }}
+              style={{ backgroundColor: '#000080', borderColor: '#F5C518' }}
             >
               <div className="mb-2" style={{ color: '#FFFFFF' }}>Official PLREI Brand Guidelines Reference</div>
-              <p style={{ color: '#E7ECFF' }}>
+              <p style={{ color: '#FFFFFF' }}>
                 This section defines the only approved email signature icons and implementation methods for
                 Power Line Rent-E-Quip, Inc. Use these rules for the web app, exported signatures, and email template
                 generation.

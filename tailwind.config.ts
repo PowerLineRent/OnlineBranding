@@ -12,9 +12,9 @@ const config: Config = {
         plrei: {
           navy: '#000080',
           yellow: '#F5C518',
-          'bg-light': '#E8ECFF',
-          'bg-border': '#D5DBF5',
-          'text-body': '#4A4A63',
+          'bg-light': '#FFFFFF',
+          'bg-border': '#3F4042',
+          'text-body': '#4A4A4B',
         },
       },
     },

@@ -8,7 +8,7 @@ html {
 
 body {
   font-family: Arial, sans-serif;
-  color: #333;
+  color: #4A4A4B;
 }
 
 .preview-box {
@@ -50,7 +50,8 @@ body {
   }
 
   .section-title {
-    @apply text-3xl font-bold text-gray-900 mb-4;
+    @apply text-3xl font-bold mb-4;
+    color: #3F4042;
   }
 
   .section-body {
@@ -69,6 +70,8 @@ body {
   }
 
   .dont-tag {
-    @apply inline-block text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-red-100 text-red-800 mb-3;
+    @apply inline-block text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded mb-3;
+    background-color: #3F4042;
+    color: #F5C518;
   }
 }

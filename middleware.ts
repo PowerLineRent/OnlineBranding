@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { isDevelopmentAuthBypassEnabled } from '@/lib/auth/dev-bypass';
 
 const PUBLIC_PATHS = ['/login', '/invalid-link'];
 const PUBLIC_PREFIXES = ['/api/auth', '/api/signature-link', '/_next', '/static', '/logos', '/letterhead'];
@@ -85,6 +86,11 @@ function hasSessionCookie(req: NextRequest): boolean {
 }
 
 export async function middleware(req: NextRequest) {
+  if (isDevelopmentAuthBypassEnabled()) {
+    // Development convenience: bypass middleware auth gates during `npm run dev`.
+    return NextResponse.next();
+  }
+
   const { pathname, searchParams } = req.nextUrl;
   if (shouldSkipAuth(pathname)) return NextResponse.next();
 

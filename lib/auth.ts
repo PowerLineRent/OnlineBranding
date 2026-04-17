@@ -1,4 +1,5 @@
 import NextAuth, { type NextAuthConfig } from 'next-auth';
+import type { Session } from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import bcrypt from 'bcryptjs';
@@ -8,6 +9,7 @@ import { getSsoProviders, toAuthJsOauthProvider } from '@/lib/auth/providers';
 import { normalizeEmail } from '@/lib/security';
 import { checkRateLimit } from '@/lib/rate-limit';
 import { DEFAULT_ADMIN_EMAIL } from '@/lib/auth/admin';
+import { isDevelopmentAuthBypassEnabled } from '@/lib/auth/dev-bypass';
 
 const credentialsSchema = z.object({
   email: z.string().email(),
@@ -239,10 +241,36 @@ function buildBaseConfig(): Omit<NextAuthConfig, 'providers'> {
   };
 }
 
-export const { handlers, auth, signIn, signOut } = NextAuth(async () => {
+const nextAuth = NextAuth(async () => {
   const dynamicProviders = (await getSsoProviders()).map(toAuthJsOauthProvider);
   return {
     ...buildBaseConfig(),
     providers: [credentialsProvider(), ...dynamicProviders],
   };
 });
+
+const { handlers, auth: authFromNextAuth, signIn, signOut } = nextAuth;
+
+function buildDevelopmentSession(): Session {
+  const email = normalizeEmail(process.env.ADMIN_EMAIL ?? DEFAULT_ADMIN_EMAIL);
+  return {
+    user: {
+      id: 'dev-auth-bypass-user',
+      name: 'Development Admin',
+      email,
+      role: 'admin',
+    },
+    expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+  };
+}
+
+async function auth(...args: any[]) {
+  if (isDevelopmentAuthBypassEnabled()) {
+    // Development convenience:
+    // return a mock authenticated admin session when running `npm run dev`.
+    return buildDevelopmentSession();
+  }
+  return (authFromNextAuth as any)(...args);
+}
+
+export { handlers, auth, signIn, signOut };
