@@ -202,9 +202,6 @@ export default function LoginPage() {
                   </PasswordToggleField.Toggle>
                 </PasswordToggleField.Root>
               </label>
-              <div className="flex items-center justify-end">
-                <span className="text-sm text-[#000080]">Forgot password?</span>
-              </div>
               <div className="flex items-center gap-3 pt-1">
                 <button
                   type="button"
