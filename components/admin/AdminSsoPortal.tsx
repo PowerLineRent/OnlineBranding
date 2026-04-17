@@ -186,7 +186,7 @@ function ProviderForm({ initial, isNew, providerKeys, onSave, onCancel }: Provid
   const suggestedCallback = form.providerKey ? callbackUrl(form.providerKey) : '';
 
   return (
-    <form onSubmit={submit} className="space-y-4 p-5 rounded-lg border border-gray-200 bg-gray-50">
+    <form onSubmit={submit} autoComplete="off" className="space-y-4 p-5 rounded-lg border border-gray-200 bg-gray-50">
       <h3 className="font-semibold text-base">{isNew ? 'New SSO Provider' : `Edit: ${initial?.displayName}`}</h3>
 
       {isNew && (
@@ -243,11 +243,12 @@ function ProviderForm({ initial, isNew, providerKeys, onSave, onCancel }: Provid
 
       <div className="grid sm:grid-cols-2 gap-3">
         <Field label="Client ID">
-          <Input value={form.clientId} onChange={(e) => set('clientId', e.target.value)} required />
+          <Input autoComplete="off" value={form.clientId} onChange={(e) => set('clientId', e.target.value)} required />
         </Field>
         <Field label={`Client Secret${form.hasClientSecret ? ' (leave blank to keep current)' : ''}`}>
           <Input
             type="password"
+            autoComplete="new-password"
             value={form.clientSecret}
             onChange={(e) => set('clientSecret', e.target.value)}
             placeholder={form.hasClientSecret ? 'Stored – leave blank to keep' : ''}
