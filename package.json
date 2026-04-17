@@ -7,7 +7,7 @@
     "dev": "next dev",
     "dev:turbo": "next dev --turbopack",
     "dev:clean": "npm run clean:next && next dev",
-    "build": "prisma migrate deploy && next build",
+    "build": "node scripts/migrate.js && next build",
     "start": "next start",
     "lint": "next lint",
     "prisma:generate": "prisma generate",
