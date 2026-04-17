@@ -1,35 +1,24 @@
 ﻿'use client';
 
 import { useState, useRef, useCallback, useEffect } from 'react';
+import { resolveEmailSignatureAssetUrls } from '@/lib/emailSignatureAssetUrls';
 import {
-  getEmailSignatureIconFileName,
-  getPreferredEmailSignatureAssetUrl,
-  resolveEmailSignatureAssetUrls } from '@/lib/emailSignatureAssetUrls';
-
-interface FormData {
-  name: string;
-  title: string;
-  office: string;
-  mobile: string;
-  fax: string;
-  email: string;
-  addr1: string;
-  addr2: string;
-}
-
-const DEFAULT_DATA: FormData = {
-  name: 'Tim Kingery',
-  title: 'President',
-  office: '540-682-2126',
-  mobile: '540-815-3752',
-  fax: '540-345-4400',
-  email: 'timkingery@plrei.com',
-  addr1: '42 Noble Avenue, NE',
-  addr2: 'Roanoke, VA 24012' };
+  buildSignatureHtml,
+  DEFAULT_SIGNATURE_ASSET_URLS,
+  DEFAULT_SIGNATURE_DATA,
+  SIGNATURE_ASSET_FILES,
+  LOGO_FILE,
+  ADDRESS_ICON_FILE,
+  PHONE_ICON_FILE,
+  EMAIL_ICON_FILE,
+  LINK_ICON_FILE,
+  type SignatureAssetUrls,
+  type SignatureFormData,
+} from '@/lib/emailSignatureTemplate';
 
 const STORAGE_KEY = 'plrei-email-signature-v1';
 
-function encodeState(data: Partial<FormData>): string {
+function encodeState(data: Partial<SignatureFormData>): string {
   const json = JSON.stringify(data);
   const bytes = new TextEncoder().encode(json);
   let binary = '';
@@ -37,7 +26,7 @@ function encodeState(data: Partial<FormData>): string {
   return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
 
-function decodeState(encoded: string): Partial<FormData> {
+function decodeState(encoded: string): Partial<SignatureFormData> {
   const normalized = encoded.replace(/-/g, '+').replace(/_/g, '/');
   const padded = normalized + '='.repeat((4 - (normalized.length % 4)) % 4);
   const binary = atob(padded);
@@ -46,128 +35,12 @@ function decodeState(encoded: string): Partial<FormData> {
   return JSON.parse(json);
 }
 
-function getCustomized(data: FormData): Partial<FormData> {
-  const result: Partial<FormData> = {};
-  (Object.keys(DEFAULT_DATA) as (keyof FormData)[]).forEach((key) => {
-    if (data[key] !== DEFAULT_DATA[key]) result[key] = data[key];
+function getCustomized(data: SignatureFormData): Partial<SignatureFormData> {
+  const result: Partial<SignatureFormData> = {};
+  (Object.keys(DEFAULT_SIGNATURE_DATA) as (keyof SignatureFormData)[]).forEach((key) => {
+    if (data[key] !== DEFAULT_SIGNATURE_DATA[key]) result[key] = data[key];
   });
   return result;
-}
-
-const LOGO_FILE = 'EmailSignatureLogo-V3.png';
-const ADDRESS_ICON_FILE = getEmailSignatureIconFileName('address');
-const PHONE_ICON_FILE = getEmailSignatureIconFileName('phone');
-const EMAIL_ICON_FILE = getEmailSignatureIconFileName('email');
-const LINK_ICON_FILE = getEmailSignatureIconFileName('link');
-
-const SIGNATURE_ASSET_FILES = [
-  LOGO_FILE,
-  ADDRESS_ICON_FILE,
-  PHONE_ICON_FILE,
-  EMAIL_ICON_FILE,
-  LINK_ICON_FILE,
-] as const;
-
-const DEFAULT_ASSET_URLS = {
-  logo: getPreferredEmailSignatureAssetUrl(LOGO_FILE),
-  address: getPreferredEmailSignatureAssetUrl(ADDRESS_ICON_FILE),
-  phone: getPreferredEmailSignatureAssetUrl(PHONE_ICON_FILE),
-  email: getPreferredEmailSignatureAssetUrl(EMAIL_ICON_FILE),
-  link: getPreferredEmailSignatureAssetUrl(LINK_ICON_FILE) } as const;
-
-// Escape HTML special characters for safe insertion into the signature template string.
-function esc(s: string): string {
-  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-}
-
-// Build the clipboard HTML string directly from state rather than serialising the
-// live DOM.  React stores colours as rgb() in the DOM (e.g. rgb(0,0,128)), so
-// clone.innerHTML would give Outlook rgb() values instead of the hex values that
-// older Outlook versions require.  Generating the string ourselves guarantees the
-// output is byte-for-byte identical to the original static HTML template.
-function buildSignatureHtml(data: FormData, urls: typeof DEFAULT_ASSET_URLS): string {
-  const hasAddr = !!(data.addr1 || data.addr2);
-  const hasBothAddr = !!(data.addr1 && data.addr2);
-  return `<table cellspacing="0" cellpadding="0" style="FONT-FAMILY: Aptos, Calibri, sans-serif; COLOR: #000080; width:480px; background: transparent !important;">
-                        <tbody>
-                            <tr>
-                                <td width="126" style="FONT-SIZE: 10pt; FONT-FAMILY: Aptos, Calibri, sans-serif; COLOR: #000080; line-height:12pt; padding-bottom:23px; padding-right:10px; text-align:center; width:126px; vertical-align: top" valign="bottom">
-                                    <a href="https://plrei.com" target="_blank" style="text-decoration: none; border: 0;">
-                                        <img alt="Logo" width="94" border="0" style="width:94px; height:auto; border:0; display:block;" src="${esc(urls.logo)}">
-                                    </a>
-                                </td>
-                                <td valign="top" style="padding-bottom: 20px; FONT-FAMILY: Aptos, Calibri, sans-serif; vertical-align: top;">
-
-                                    <p style="border-bottom:3px solid #000080; padding-bottom: 5px; margin: 0 0 8px 0;">
-                                        <span style="FONT-SIZE: 20px; COLOR: #000000; FONT-FAMILY: Aptos, Calibri, sans-serif;">
-                                            <strong id="sig-name">${esc(data.name)}</strong>
-                                        </span>
-                                        <br>
-                                        <span id="sig-title" style="FONT-SIZE: 16px; COLOR: #000000;">${esc(data.title)}</span>
-                                    </p>
-
-                                    <p style="margin: 0 0 10px 0;">
-                                        <span style="FONT-SIZE: 18px; COLOR: #000000;">
-                                            <strong>Power Line Rent-E-Quip, Inc.</strong>
-                                        </span>
-                                    </p>
-
-                                    <table cellpadding="0" cellspacing="0" border="0" style="font-family: Arial; font-size: 14px; line-height: 1; border-collapse: collapse;">
-                                        <tbody>
-                                            <tr id="sig-addr-row" style="height: ${hasBothAddr ? '36' : '26'}px;${!hasAddr ? ' display: none;' : ''}">
-                                                <td width="26" valign="top" style="width: 26px; vertical-align: top; padding-top: 4px;">
-                                                    <img src="${esc(urls.address)}" alt="" width="18" height="18" border="0" style="display:block;">
-                                                </td>
-                                                <td style="padding: 0 0 0 4px; font-size: 14px; color: #000000; line-height: 1.5;">
-                                                    <span id="sig-addr1" style="font-size:14px;color:#000000;">${esc(data.addr1)}</span>${hasBothAddr ? '<br id="sig-addr-br">' : '<br id="sig-addr-br" style="display: none;">'}<span id="sig-addr2" style="font-size:14px;color:#000000;">${esc(data.addr2)}</span>
-                                                </td>
-                                            </tr>
-                                            <tr id="sig-office-row" style="height: 26px;${!data.office ? ' display: none;' : ''}">
-                                                <td width="26" valign="middle" style="width: 26px; vertical-align: middle;">
-                                                    <img src="${esc(urls.phone)}" alt="" width="18" height="18" border="0" style="display:block;">
-                                                </td>
-                                                <td style="padding: 0 0 0 4px; font-size: 14px; color: #000000;">
-                                                    <span style="font-size:14px;color:#000000;">Office: <span id="sig-office">${esc(data.office)}</span></span>
-                                                </td>
-                                            </tr>
-                                            <tr id="sig-mobile-row" style="height: 26px;${!data.mobile ? ' display: none;' : ''}">
-                                                <td width="26" valign="middle" style="width: 26px; vertical-align: middle;">
-                                                    <img src="${esc(urls.phone)}" alt="" width="18" height="18" border="0" style="display:block;">
-                                                </td>
-                                                <td style="padding: 0 0 0 4px; font-size: 14px; color: #000000;">
-                                                    <span style="font-size:14px;color:#000000;">Mobile: <span id="sig-mobile">${esc(data.mobile)}</span></span>
-                                                </td>
-                                            </tr>
-                                            <tr id="sig-fax-row" style="height: 26px;${!data.fax ? ' display: none;' : ''}">
-                                                <td width="26" valign="middle" style="width: 26px; vertical-align: middle;">
-                                                    <img src="${esc(urls.phone)}" alt="" width="18" height="18" border="0" style="display:block;">
-                                                </td>
-                                                <td style="padding: 0 0 0 4px; font-size: 14px; color: #000000;">
-                                                    <span style="font-size:14px;color:#000000;">Fax: <span id="sig-fax">${esc(data.fax)}</span></span>
-                                                </td>
-                                            </tr>
-                                            <tr id="sig-email-row" style="height: 26px;${!data.email ? ' display: none;' : ''}">
-                                                <td width="26" valign="middle" style="width: 26px; vertical-align: middle;">
-                                                    <img src="${esc(urls.email)}" alt="" width="18" height="18" border="0" style="display:block;">
-                                                </td>
-                                                <td style="padding: 0 0 0 4px; font-size: 14px; color: #000000;">
-                                                    <a id="sig-email-link" href="mailto:${esc(data.email)}" style="font-size:14px;color:#000000;text-decoration:none;"><span id="sig-email" style="text-decoration:none;color:#000080;">${esc(data.email)}</span></a>
-                                                </td>
-                                            </tr>
-                                            <tr id="sig-web-row" style="height: 26px;">
-                                                <td width="26" valign="middle" style="width: 26px; vertical-align: middle;">
-                                                    <img src="${esc(urls.link)}" alt="" width="18" height="18" border="0" style="display:block;">
-                                                </td>
-                                                <td style="padding: 0 0 0 4px; font-size: 14px; color: #000080;">
-                                                    <a href="https://www.plrei.com" style="font-size:14px;color:#000080;text-decoration:none;"><span style="text-decoration:none;color:#000080;">www.plrei.com</span></a>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>`;
 }
 
 interface Props {
@@ -175,9 +48,9 @@ interface Props {
 }
 
 export default function EmailSignatureGenerator({ initialEncoded }: Props) {
-  const [data, setData] = useState<FormData>(() => {
+  const [data, setData] = useState<SignatureFormData>(() => {
     // Start with defaults; will be overwritten by storage/permalink on mount
-    return { ...DEFAULT_DATA };
+    return { ...DEFAULT_SIGNATURE_DATA };
   });
   const [copyStatus, setCopyStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [permalink, setPermalink] = useState('');
@@ -185,11 +58,11 @@ export default function EmailSignatureGenerator({ initialEncoded }: Props) {
   const [mobileStatus, setMobileStatus] = useState('');
   const [mobileIsError, setMobileIsError] = useState(false);
   const [sending, setSending] = useState(false);
-  const [assetUrls, setAssetUrls] = useState(DEFAULT_ASSET_URLS);
+  const [assetUrls, setAssetUrls] = useState<SignatureAssetUrls>(DEFAULT_SIGNATURE_ASSET_URLS);
 
   const signatureRef = useRef<HTMLDivElement>(null);
 
-  const buildPermalink = useCallback(async (current: FormData) => {
+  const buildPermalink = useCallback(async (current: SignatureFormData) => {
     if (typeof window === 'undefined') return '';
     const customized = getCustomized(current);
     if (Object.keys(customized).length === 0) {
@@ -221,7 +94,7 @@ export default function EmailSignatureGenerator({ initialEncoded }: Props) {
     return url.toString();
   }, []);
 
-  function set(field: keyof FormData) {
+  function set(field: keyof SignatureFormData) {
     return (e: React.ChangeEvent<HTMLInputElement>) => {
       setData((prev) => {
         const next = { ...prev, [field]: e.target.value };
@@ -233,7 +106,7 @@ export default function EmailSignatureGenerator({ initialEncoded }: Props) {
 
   // On mount: hydrate from storage, then from permalink
   useEffect(() => {
-    let merged = { ...DEFAULT_DATA };
+    let merged = { ...DEFAULT_SIGNATURE_DATA };
 
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -289,11 +162,11 @@ export default function EmailSignatureGenerator({ initialEncoded }: Props) {
       }
 
       setAssetUrls({
-        logo: resolved[LOGO_FILE] ?? DEFAULT_ASSET_URLS.logo,
-        address: resolved[ADDRESS_ICON_FILE] ?? DEFAULT_ASSET_URLS.address,
-        phone: resolved[PHONE_ICON_FILE] ?? DEFAULT_ASSET_URLS.phone,
-        email: resolved[EMAIL_ICON_FILE] ?? DEFAULT_ASSET_URLS.email,
-        link: resolved[LINK_ICON_FILE] ?? DEFAULT_ASSET_URLS.link });
+        logo: resolved[LOGO_FILE] ?? DEFAULT_SIGNATURE_ASSET_URLS.logo,
+        address: resolved[ADDRESS_ICON_FILE] ?? DEFAULT_SIGNATURE_ASSET_URLS.address,
+        phone: resolved[PHONE_ICON_FILE] ?? DEFAULT_SIGNATURE_ASSET_URLS.phone,
+        email: resolved[EMAIL_ICON_FILE] ?? DEFAULT_SIGNATURE_ASSET_URLS.email,
+        link: resolved[LINK_ICON_FILE] ?? DEFAULT_SIGNATURE_ASSET_URLS.link });
     }
 
     void resolveAssetUrls();

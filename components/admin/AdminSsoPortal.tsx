@@ -27,6 +27,7 @@ type DomainMappingRow = {
 
 type UserRow = {
   id: string;
+  name: string | null;
   email: string;
   role: string;
   lastLoginAt: string | null;
@@ -427,6 +428,9 @@ export default function AdminSsoPortal() {
   const [providers, setProviders] = useState<ProviderRow[]>([]);
   const [mappings, setMappings] = useState<DomainMappingRow[]>([]);
   const [users, setUsers] = useState<UserRow[]>([]);
+  const [roleDrafts, setRoleDrafts] = useState<Record<string, string>>({});
+  const [roleSavingById, setRoleSavingById] = useState<Record<string, boolean>>({});
+  const [roleErrorById, setRoleErrorById] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -456,6 +460,10 @@ export default function AdminSsoPortal() {
       setProviders(provJson.providers);
       setMappings(domJson.mappings);
       setUsers(usrJson.users);
+      setRoleDrafts(
+        Object.fromEntries(usrJson.users.map((user) => [user.id, user.role]))
+      );
+      setRoleErrorById({});
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load admin data.');
     } finally {
@@ -464,6 +472,28 @@ export default function AdminSsoPortal() {
   }
 
   useEffect(() => { void loadAll(); }, []);
+
+  async function updateUserRole(userId: string, nextRole: string) {
+    setRoleSavingById((prev) => ({ ...prev, [userId]: true }));
+    setRoleErrorById((prev) => ({ ...prev, [userId]: '' }));
+    try {
+      const res = await fetch(`/api/admin/users/${encodeURIComponent(userId)}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ role: nextRole }),
+      });
+      const json = (await res.json()) as { error?: string };
+      if (!res.ok) {
+        setRoleErrorById((prev) => ({ ...prev, [userId]: json.error ?? 'Failed to update role.' }));
+        return;
+      }
+      await loadAll();
+    } catch {
+      setRoleErrorById((prev) => ({ ...prev, [userId]: 'Failed to update role.' }));
+    } finally {
+      setRoleSavingById((prev) => ({ ...prev, [userId]: false }));
+    }
+  }
 
   async function confirmDelete() {
     if (!deleteConfirm) return;
@@ -706,7 +736,7 @@ export default function AdminSsoPortal() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-200 text-left text-gray-500 text-xs uppercase tracking-wide">
-                <th className="py-2 pr-4">Email</th>
+                <th className="py-2 pr-4">User</th>
                 <th className="py-2 pr-4">Role</th>
                 <th className="py-2 pr-4">Last Login</th>
                 <th className="py-2 pr-4">Status</th>
@@ -715,8 +745,34 @@ export default function AdminSsoPortal() {
             <tbody>
               {users.map((u) => (
                 <tr key={u.id} className="border-b border-gray-100">
-                  <td className="py-2 pr-4">{u.email}</td>
-                  <td className="py-2 pr-4">{u.role}</td>
+                  <td className="py-2 pr-4">
+                    <div className="font-medium text-gray-900">{u.name || 'Unnamed user'}</div>
+                    <div className="text-xs text-gray-500">{u.email}</div>
+                  </td>
+                  <td className="py-2 pr-4">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <select
+                        value={roleDrafts[u.id] ?? u.role}
+                        onChange={(e) =>
+                          setRoleDrafts((prev) => ({ ...prev, [u.id]: e.target.value }))
+                        }
+                        className="border border-gray-300 rounded-md px-2 py-1 text-sm"
+                      >
+                        <option value="user">user</option>
+                        <option value="admin">admin</option>
+                      </select>
+                      <button
+                        onClick={() => void updateUserRole(u.id, roleDrafts[u.id] ?? u.role)}
+                        disabled={(roleDrafts[u.id] ?? u.role) === u.role || Boolean(roleSavingById[u.id])}
+                        className="px-3 py-1 rounded bg-plrei-navy text-white text-xs disabled:opacity-50"
+                      >
+                        {roleSavingById[u.id] ? 'Saving...' : 'Save'}
+                      </button>
+                    </div>
+                    {roleErrorById[u.id] && (
+                      <p className="mt-1 text-xs text-red-600">{roleErrorById[u.id]}</p>
+                    )}
+                  </td>
                   <td className="py-2 pr-4">{formatDate(u.lastLoginAt)}</td>
                   <td className="py-2 pr-4">{u.status}</td>
                 </tr>

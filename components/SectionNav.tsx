@@ -12,10 +12,11 @@ const NAV_ITEMS = [
 interface SectionNavProps {
   showOverview?: boolean;
   userEmail?: string;
+  userName?: string;
   isAdmin?: boolean;
 }
 
-export default function SectionNav({ showOverview = true, userEmail, isAdmin = false }: SectionNavProps) {
+export default function SectionNav({ showOverview = true, userEmail, userName, isAdmin = false }: SectionNavProps) {
   const pathname = usePathname();
   const isHomePage = pathname === '/';
   const [active, setActive] = useState('overview');
@@ -23,6 +24,7 @@ export default function SectionNav({ showOverview = true, userEmail, isAdmin = f
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const navItems = showOverview ? NAV_ITEMS : [];
+  const userLabel = userName?.trim() || userEmail || '';
 
   useEffect(() => {
     if (!isHomePage) {
@@ -102,14 +104,14 @@ export default function SectionNav({ showOverview = true, userEmail, isAdmin = f
             <div className="relative ml-3" ref={dropdownRef}>
               <button
                 onClick={() => setDropdownOpen((v) => !v)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-md hover:bg-plrei-bg-light transition-colors max-w-[180px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#000080] focus-visible:ring-offset-2"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-md hover:bg-plrei-bg-light transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#000080] focus-visible:ring-offset-2"
                 aria-expanded={dropdownOpen}
                 aria-haspopup="true"
               >
                 <svg className="w-4 h-4 text-plrei-text-body shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
-                <span className="truncate text-sm">{userEmail}</span>
+                <span className="text-sm whitespace-nowrap">{userLabel}</span>
                 <svg className="w-3.5 h-3.5 text-plrei-text-body shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
@@ -118,7 +120,10 @@ export default function SectionNav({ showOverview = true, userEmail, isAdmin = f
               {dropdownOpen && (
                 <div className="absolute right-0 mt-1 w-56 bg-white border border-plrei-bg-border rounded-md shadow-sm z-50 overflow-hidden">
                   <div className="px-4 py-2.5 border-b border-plrei-bg-border">
-                    <p className="text-xs text-plrei-text-body truncate">{userEmail}</p>
+                    <p className="text-sm text-plrei-text-body truncate">{userLabel}</p>
+                    {userEmail && userName?.trim() && (
+                      <p className="text-xs text-plrei-text-body truncate mt-0.5">{userEmail}</p>
+                    )}
                   </div>
                   {isAdmin && (
                     <a
@@ -178,7 +183,10 @@ export default function SectionNav({ showOverview = true, userEmail, isAdmin = f
           {userEmail && (
             <>
               <div className="px-6 py-2 border-t border-plrei-bg-border">
-                <p className="text-xs text-plrei-text-body truncate">{userEmail}</p>
+                <p className="text-sm text-plrei-text-body truncate">{userLabel}</p>
+                {userEmail && userName?.trim() && (
+                  <p className="text-xs text-plrei-text-body truncate mt-0.5">{userEmail}</p>
+                )}
               </div>
               <form action={logout}>
                 <button

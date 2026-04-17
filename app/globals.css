@@ -7,7 +7,7 @@ html {
 }
 
 body {
-  font-family: Arial, sans-serif;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   color: #4A4A4B;
 }
 
@@ -60,6 +60,16 @@ body {
 
   .card {
     @apply bg-white border border-plrei-bg-border rounded-xl p-6;
+  }
+
+  .card-title-main {
+    @apply text-xl font-extrabold leading-tight mb-2;
+    color: #000080;
+  }
+
+  .card-title-sub {
+    @apply text-base font-bold leading-tight mb-1;
+    color: #000080;
   }
 
   /* Yellow-accented Do tag */

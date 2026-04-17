@@ -186,19 +186,25 @@ function buildBaseConfig(): Omit<NextAuthConfig, 'providers'> {
         if (user?.id) {
           token.sub = user.id;
         }
+        if (typeof user?.name === 'string' && user.name.trim()) {
+          token.name = user.name;
+        }
 
         if (user && 'role' in user && typeof user.role === 'string') {
           token.role = user.role;
           return token;
         }
 
-        if (!token.role && email) {
+        if ((!token.role || !token.name) && email) {
           const dbUser = await prisma.user.findUnique({
             where: { email },
-            select: { role: true },
+            select: { role: true, name: true },
           });
           if (dbUser?.role) {
             token.role = dbUser.role;
+          }
+          if (dbUser?.name) {
+            token.name = dbUser.name;
           }
         }
 
@@ -209,18 +215,28 @@ function buildBaseConfig(): Omit<NextAuthConfig, 'providers'> {
           if (token.sub) {
             session.user.id = token.sub;
           }
+          if (typeof token.name === 'string' && token.name.trim()) {
+            session.user.name = token.name;
+          }
           session.user.role = typeof token.role === 'string' ? token.role : 'user';
         }
         return session;
       },
     },
     events: {
-      async signIn({ user }) {
+      async signIn({ user, account }) {
         const email = normalizeEmail(user.email ?? '');
         if (!email) return;
+        const ssoName =
+          account?.provider !== 'credentials' && typeof user.name === 'string' && user.name.trim()
+            ? user.name.trim()
+            : undefined;
         await prisma.user.updateMany({
           where: { email },
-          data: { lastLoginAt: new Date() },
+          data: {
+            lastLoginAt: new Date(),
+            ...(ssoName ? { name: ssoName } : {}),
+          },
         });
       },
     },

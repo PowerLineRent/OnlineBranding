@@ -21,10 +21,23 @@ export default async function EmailSignaturePage({ searchParams }: Props) {
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
-      <SectionNav showOverview={Boolean(session?.user)} userEmail={session?.user?.email ?? undefined} isAdmin={isAdminSession(session)} />
+      <SectionNav
+        showOverview={Boolean(session?.user)}
+        userEmail={session?.user?.email ?? undefined}
+        userName={session?.user?.name ?? undefined}
+        isAdmin={isAdminSession(session)}
+      />
 
       <section style={{ backgroundColor: '#000080' }}>
         <div className="max-w-5xl mx-auto px-6 py-14" style={{ color: '#FFFFFF' }}>
+          <a
+            href="/"
+            className="mb-5 inline-flex items-center gap-2 rounded border px-3 py-1.5 text-sm font-semibold transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#000080]"
+            style={{ borderColor: '#F5C518', color: '#F5C518' }}
+          >
+            <span aria-hidden="true">←</span>
+            <span>Back To Home</span>
+          </a>
           <h1 style={{ margin: 0, marginBottom: '12px', fontSize: '42px', fontWeight: 800, lineHeight: 1.08, color: '#F5C518' }}>
             Email Signature Tool
           </h1>
