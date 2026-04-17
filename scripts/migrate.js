@@ -31,9 +31,18 @@ if (!directUrl || directUrl === process.env.POSTGRES_PRISMA_URL || isTransaction
   process.exit(0);
 }
 
-function run(cmd, { ignoreError = false, timeout = 30_000 } = {}) {
+// Force ALL Prisma URL env vars to the direct connection so the migration
+// engine cannot fall back to the transaction-mode pooler (port 6543).
+const migrateEnv = {
+  ...process.env,
+  DATABASE_URL: directUrl,
+  POSTGRES_PRISMA_URL: directUrl,
+  POSTGRES_URL: directUrl,
+};
+
+function run(cmd, { ignoreError = false, timeout = 60_000 } = {}) {
   try {
-    execSync(cmd, { stdio: 'inherit', timeout });
+    execSync(cmd, { stdio: 'inherit', timeout, env: migrateEnv });
     return true;
   } catch (err) {
     if (!ignoreError) throw err;
@@ -42,4 +51,4 @@ function run(cmd, { ignoreError = false, timeout = 30_000 } = {}) {
 }
 
 run('npx prisma migrate resolve --applied 20260416193956_init_auth', { ignoreError: true });
-run('npx prisma migrate deploy', { timeout: 60_000 });
+run('npx prisma migrate deploy');
