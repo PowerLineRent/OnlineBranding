@@ -10,7 +10,6 @@ type CredentialStatusResponse = { accountExists: boolean; error?: string };
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [mode, setMode] = useState<'email' | 'password'>('email');
   const [providerId, setProviderId] = useState<string | null>(null);
   const [error, setError] = useState('');
@@ -87,10 +86,11 @@ export default function LoginPage() {
     event.preventDefault();
     setSubmitting(true);
     setError('');
+    const passwordValue = passwordInputRef.current?.value ?? '';
 
     const result = (await signIn('credentials', {
       email,
-      password,
+      password: passwordValue,
       redirect: false,
     })) as { ok?: boolean; error?: string } | undefined;
 
@@ -119,7 +119,6 @@ export default function LoginPage() {
 
   function goBackToEmailStep() {
     setMode('email');
-    setPassword('');
     setError('');
   }
 
@@ -172,6 +171,17 @@ export default function LoginPage() {
 
           {mode === 'password' && (
             <form className="space-y-4" onSubmit={onPasswordSubmit}>
+              <div>
+                <button
+                  type="button"
+                  onClick={goBackToEmailStep}
+                  className="inline-flex items-center gap-1 rounded-md px-1 py-1 text-sm font-medium text-slate-700 transition hover:text-[#000080] disabled:cursor-not-allowed disabled:opacity-60"
+                  disabled={submitting}
+                >
+                  <span aria-hidden="true">←</span>
+                  <span>Back</span>
+                </button>
+              </div>
               <label className="block">
                 <span className="mb-2 block text-base font-medium text-slate-800">Email</span>
                 <input
@@ -190,8 +200,6 @@ export default function LoginPage() {
                     name="password"
                     autoComplete="current-password"
                     placeholder="********"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
                     required
                   />
                   <PasswordToggleField.Toggle className="absolute right-2 top-1/2 inline-flex -translate-y-1/2 items-center rounded-md border border-slate-300 bg-slate-100 p-1.5 text-slate-700 transition hover:bg-slate-200">
@@ -203,14 +211,6 @@ export default function LoginPage() {
                 </PasswordToggleField.Root>
               </label>
               <div className="flex items-center gap-3 pt-1">
-                <button
-                  type="button"
-                  onClick={goBackToEmailStep}
-                  className="rounded-xl border border-slate-300 px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60"
-                  disabled={submitting}
-                >
-                  Back
-                </button>
                 <button
                   className="flex-1 rounded-xl bg-[#000080] px-4 py-2.5 text-base font-semibold text-white transition hover:bg-[#000066] disabled:cursor-not-allowed disabled:opacity-60"
                   disabled={submitting}
