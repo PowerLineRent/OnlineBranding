@@ -29,6 +29,9 @@ export function resolveDiscoverMode(input: {
 export async function discoverAuthMode(rawEmail: string): Promise<DiscoverResult> {
   const email = normalizeEmail(rawEmail);
   const adminEmail = normalizeEmail(process.env.ADMIN_EMAIL ?? DEFAULT_ADMIN_EMAIL);
+  if (email === adminEmail) {
+    return { mode: 'password' };
+  }
 
   const domain = extractDomain(email);
   if (!domain) {
