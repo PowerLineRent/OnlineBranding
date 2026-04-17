@@ -19,7 +19,12 @@ const APPROVED_COLOR_SYSTEM = [
     name: 'Brand Yellow',
     hex: '#F5C518',
     usage: 'Digital accent color for highlights and call-to-action elements.',
-    light: false },
+    light: true },
+  {
+    name: 'Tinted Background',
+    hex: '#EFF3FF',
+    usage: 'Alternate section background tint for visual separation on web layouts.',
+    light: true },
   {
     name: 'Charcoal',
     hex: '#3F4042',
@@ -30,6 +35,19 @@ const APPROVED_COLOR_SYSTEM = [
     hex: '#4A4A4B',
     usage: 'Crest gradient dark stop.',
     light: false },
+] as const;
+
+const NEUTRAL_COLOR_SYSTEM = [
+  {
+    name: 'Black',
+    hex: '#000000',
+    usage: 'High-contrast text and monochrome utility use only.',
+    light: false },
+  {
+    name: 'White',
+    hex: '#FFFFFF',
+    usage: 'Card surfaces, logo hold shapes, and reverse text/background applications.',
+    light: true },
 ] as const;
 
 type LogoVariant = {
@@ -55,6 +73,7 @@ const AUTHORIZED_LOGO_SECTIONS: LogoSection[] = [
     variants: [
       {
         name: 'White style (with glow)',
+        context: 'Full wordmark with white lightning and glow effect.',
         preview: '/logos/authorized/PLREI Lightning.svg',
         files: [
           '/logos/authorized/PLREI Lightning.svg',
@@ -64,6 +83,7 @@ const AUTHORIZED_LOGO_SECTIONS: LogoSection[] = [
       },
       {
         name: 'Blue style (with glow)',
+        context: 'Full wordmark with navy lightning and glow effect.',
         preview: '/logos/authorized/PLREI Lightning (Blue).svg',
         files: [
           '/logos/authorized/PLREI Lightning (Blue).svg',
@@ -73,6 +93,7 @@ const AUTHORIZED_LOGO_SECTIONS: LogoSection[] = [
       },
       {
         name: 'White style (no glow)',
+        context: 'Clean white wordmark without glow. Preferred for print.',
         preview: '/logos/authorized/PLREI Lightning without Glow.svg',
         files: [
           '/logos/authorized/PLREI Lightning without Glow.svg',
@@ -82,6 +103,7 @@ const AUTHORIZED_LOGO_SECTIONS: LogoSection[] = [
       },
       {
         name: 'Blue style (no glow)',
+        context: 'Clean navy wordmark without glow. Preferred for print.',
         preview: '/logos/authorized/PLREI Lightning (Blue) without Glow.svg',
         files: [
           '/logos/authorized/PLREI Lightning (Blue) without Glow.svg',
@@ -98,6 +120,7 @@ const AUTHORIZED_LOGO_SECTIONS: LogoSection[] = [
     variants: [
       {
         name: 'White style (with glow)',
+        context: 'White lightning mark with glow. For digital avatars and badges.',
         preview: '/logos/authorized/PLREI Lightning No Name.svg',
         files: [
           '/logos/authorized/PLREI Lightning No Name.svg',
@@ -107,6 +130,7 @@ const AUTHORIZED_LOGO_SECTIONS: LogoSection[] = [
       },
       {
         name: 'Blue style (with glow)',
+        context: 'Navy lightning mark with glow. For digital avatars and badges.',
         preview: '/logos/authorized/PLREI Lightning (Blue) No Name.svg',
         files: [
           '/logos/authorized/PLREI Lightning (Blue) No Name.svg',
@@ -116,6 +140,7 @@ const AUTHORIZED_LOGO_SECTIONS: LogoSection[] = [
       },
       {
         name: 'White style (no glow)',
+        context: 'White lightning mark without glow. For print or tight placements.',
         preview: '/logos/authorized/PLREI Lightning without Glow No Name.svg',
         files: [
           '/logos/authorized/PLREI Lightning without Glow No Name.svg',
@@ -125,6 +150,7 @@ const AUTHORIZED_LOGO_SECTIONS: LogoSection[] = [
       },
       {
         name: 'Blue style (no glow)',
+        context: 'Navy lightning mark without glow. For print or tight placements.',
         preview: '/logos/authorized/PLREI Lightning (Blue) without Glow No Name.svg',
         files: [
           '/logos/authorized/PLREI Lightning (Blue) without Glow No Name.svg',
@@ -141,6 +167,7 @@ const AUTHORIZED_LOGO_SECTIONS: LogoSection[] = [
     variants: [
       {
         name: 'White style (with glow)',
+        context: 'White wordmark with phone, website, and glow effect.',
         preview: '/logos/authorized/PLREI Lightning Phone Number and Website.svg',
         files: [
           '/logos/authorized/PLREI Lightning Phone Number and Website.svg',
@@ -150,6 +177,7 @@ const AUTHORIZED_LOGO_SECTIONS: LogoSection[] = [
       },
       {
         name: 'Blue style (with glow)',
+        context: 'Navy wordmark with phone, website, and glow effect.',
         preview: '/logos/authorized/PLREI Lightning Phone Number and Website (Blue).svg',
         files: [
           '/logos/authorized/PLREI Lightning Phone Number and Website (Blue).svg',
@@ -159,6 +187,7 @@ const AUTHORIZED_LOGO_SECTIONS: LogoSection[] = [
       },
       {
         name: 'White style (no glow)',
+        context: 'White wordmark with phone and website, no glow. For print.',
         preview: '/logos/authorized/PLREI Lightning Phone Number and Website without Glow.svg',
         files: [
           '/logos/authorized/PLREI Lightning Phone Number and Website without Glow.svg',
@@ -168,6 +197,7 @@ const AUTHORIZED_LOGO_SECTIONS: LogoSection[] = [
       },
       {
         name: 'Blue style (no glow)',
+        context: 'Navy wordmark with phone and website, no glow. For print.',
         preview: '/logos/authorized/PLREI Lightning Phone Number and Website (Blue) without Glow.svg',
         files: [
           '/logos/authorized/PLREI Lightning Phone Number and Website (Blue) without Glow.svg',
@@ -184,6 +214,7 @@ const AUTHORIZED_LOGO_SECTIONS: LogoSection[] = [
     variants: [
       {
         name: 'With phone and web',
+        context: 'Crest with full wordmark, phone number, and website.',
         preview: '/logos/authorized/PLREI Lightning Phone Number and Website with Crest.svg',
         files: [
           '/logos/authorized/PLREI Lightning Phone Number and Website with Crest.svg',
@@ -193,6 +224,7 @@ const AUTHORIZED_LOGO_SECTIONS: LogoSection[] = [
       },
       {
         name: 'Without phone and web',
+        context: 'Crest with wordmark only. For formal identity use without contact details.',
         preview: '/logos/authorized/PLREI Lightning with Crest.svg',
         files: [
           '/logos/authorized/PLREI Lightning with Crest.svg',
@@ -209,6 +241,7 @@ const AUTHORIZED_LOGO_SECTIONS: LogoSection[] = [
     variants: [
       {
         name: 'All elements combined',
+        context: 'Complete logo with crest, wordmark, phone number, and website.',
         preview: '/logos/authorized/PLREI Lightning Phone Number and Website with Crest.svg',
         files: [
           '/logos/authorized/PLREI Lightning Phone Number and Website with Crest.svg',
@@ -232,8 +265,6 @@ const AUTHORIZED_LOGO_SECTIONS: LogoSection[] = [
           '/logos/authorized/Special Purpose Logos/Return Address/PLREI Return Address.svg',
           '/logos/authorized/Special Purpose Logos/Return Address/PLREI Return Address.png',
           '/logos/authorized/Special Purpose Logos/Return Address/PLREI Return Address.jpg',
-          '/logos/authorized/Special Purpose Logos/Return Address/PLREI Return Address.ai',
-          '/logos/authorized/Special Purpose Logos/Return Address/PLREI Return Address.eps',
         ],
       },
       {
@@ -245,8 +276,6 @@ const AUTHORIZED_LOGO_SECTIONS: LogoSection[] = [
           '/logos/authorized/Special Purpose Logos/Trucks Rented From/PLREI Rented From.svg',
           '/logos/authorized/Special Purpose Logos/Trucks Rented From/PLREI Rented From.png',
           '/logos/authorized/Special Purpose Logos/Trucks Rented From/PLREI Rented From.jpg',
-          '/logos/authorized/Special Purpose Logos/Trucks Rented From/PLREI Rented From.ai',
-          '/logos/authorized/Special Purpose Logos/Trucks Rented From/PLREI Rented From.eps',
         ],
       },
       {
@@ -258,8 +287,6 @@ const AUTHORIZED_LOGO_SECTIONS: LogoSection[] = [
           '/logos/authorized/Special Purpose Logos/Trucks Rented From/PLREI USDOT.svg',
           '/logos/authorized/Special Purpose Logos/Trucks Rented From/PLREI USDOT.png',
           '/logos/authorized/Special Purpose Logos/Trucks Rented From/PLREI USDOT.jpg',
-          '/logos/authorized/Special Purpose Logos/Trucks Rented From/PLREI USDOT.ai',
-          '/logos/authorized/Special Purpose Logos/Trucks Rented From/PLREI USDOT.eps',
         ],
       },
       {
@@ -271,8 +298,6 @@ const AUTHORIZED_LOGO_SECTIONS: LogoSection[] = [
           '/logos/authorized/Special Purpose Logos/Trucks Rented From/PLREI Website.svg',
           '/logos/authorized/Special Purpose Logos/Trucks Rented From/PLREI Website.png',
           '/logos/authorized/Special Purpose Logos/Trucks Rented From/PLREI Website.jpg',
-          '/logos/authorized/Special Purpose Logos/Trucks Rented From/PLREI Website.ai',
-          '/logos/authorized/Special Purpose Logos/Trucks Rented From/PLREI Website.eps',
         ],
       },
     ],
@@ -281,10 +306,9 @@ const AUTHORIZED_LOGO_SECTIONS: LogoSection[] = [
 
 const LETTERHEAD_SPECIFICATIONS = [
   'Template file: PLREI Letterhead.dotx',
-  'Page size: US Letter (8.5 in x 11 in).',
+  'Page size: US Letter (8.5 in × 11 in).',
   'Page margins: 1.0 in on all sides.',
-  'Header artwork spans 8.5 in x 2.0 in and is anchored to page-right in the header region.',
-  'Use the template directly for formal correspondence so branding, spacing, and header scale remain consistent.',
+  'Header artwork spans 8.5 in × 2.0 in, anchored to the top-right of the header region.',
 ] as const;
 
 const ICONS = [
@@ -373,32 +397,39 @@ export default async function BrandPage() {
             <div className="space-y-6 mb-8">
               {AUTHORIZED_LOGO_SECTIONS.map((section) => (
                 <div key={section.name} className="card p-5">
-                  <h3 className="text-xl mb-2">{section.name}</h3>
-                  <p className="mb-2">{section.context}</p>
-                  <p className="mb-4">{section.guidance}</p>
+                  <h3 className="text-xl font-bold mb-1" style={{ color: '#000080' }}>{section.name}</h3>
+                  <p className="text-base mb-0.5 leading-snug" style={{ color: '#4A4A4B' }}>{section.context}</p>
+                  <p className="text-base mb-4 leading-snug" style={{ color: '#4A4A4B' }}>{section.guidance}</p>
 
                   <div className="grid sm:grid-cols-2 gap-5">
                     {section.variants.map((variant) => (
-                      <div key={`${section.name}-${variant.name}`} className="rounded-lg border border-plrei-bg-border bg-white p-4">
-                        <div className="h-36 flex items-center justify-center p-3 mb-3" style={{ backgroundColor: '#FFFFFF' }}>
+                      <div key={`${section.name}-${variant.name}`} className="flex flex-col rounded-lg border border-plrei-bg-border bg-white p-4">
+                        <div className="h-48 flex items-center justify-center p-4 mb-3" style={{ backgroundColor: '#FFFFFF' }}>
                           {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img src={encodeURI(variant.preview)} alt={`PLREI ${section.name} ${variant.name}`} className="max-h-24 max-w-full object-contain" />
+                          <img src={encodeURI(variant.preview)} alt={`PLREI ${section.name} ${variant.name}`} className="max-h-40 max-w-full object-contain" />
                         </div>
-                        <div className="mb-1">{variant.name}</div>
-                        {variant.context && <p className="mb-2">{variant.context}</p>}
-                        {variant.guidance && <p className="mb-3">{variant.guidance}</p>}
-                        <div className="flex flex-wrap gap-2">
-                          {variant.files.map((filePath) => (
-                            <a
-                              key={filePath}
-                              href={encodeURI(filePath)}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="px-2 py-1 rounded border border-plrei-bg-border text-xs hover:bg-plrei-bg-light"
-                            >
-                              {filePath.split('/').pop()}
-                            </a>
-                          ))}
+                        <div className="font-bold text-base mb-1" style={{ color: '#000080' }}>{variant.name}</div>
+                        {variant.context && <p className="text-xs mb-1 leading-snug" style={{ color: '#6B7280' }}>{variant.context}</p>}
+                        {variant.guidance && <p className="text-xs leading-snug mb-4" style={{ color: '#6B7280' }}>{variant.guidance}</p>}
+                        <div className="grid gap-2 mt-auto pt-3" style={{ gridTemplateColumns: `repeat(${variant.files.length}, 1fr)` }}>
+                          {[...variant.files].sort((a, b) => {
+                            const order = ['png', 'jpg', 'svg'];
+                            return order.indexOf(a.split('.').pop()!) - order.indexOf(b.split('.').pop()!);
+                          }).map((filePath) => {
+                            const ext = filePath.split('.').pop();
+                            return (
+                              <a
+                                key={filePath}
+                                href={encodeURI(filePath)}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center justify-center gap-1.5 py-2.5 rounded text-sm font-semibold uppercase tracking-wide transition-colors bg-plrei-bg-light text-plrei-navy border border-plrei-bg-border hover:bg-plrei-navy hover:text-white hover:border-plrei-navy"
+                              >
+                                <svg width="13" height="13" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M7.50005 1.04999C7.74858 1.04999 7.95005 1.25146 7.95005 1.49999V8.41359L10.1819 6.18179C10.3576 6.00605 10.6425 6.00605 10.8182 6.18179C10.994 6.35753 10.994 6.64245 10.8182 6.81819L7.81825 9.81819C7.64251 9.99392 7.35759 9.99392 7.18185 9.81819L4.18185 6.81819C4.00611 6.64245 4.00611 6.35753 4.18185 6.18179C4.35759 6.00605 4.64251 6.00605 4.81825 6.18179L7.05005 8.41359V1.49999C7.05005 1.25146 7.25152 1.04999 7.50005 1.04999ZM2.5 10C2.77614 10 3 10.2239 3 10.5V12C3 12.5539 3.44565 13 3.99635 13H11.0012C11.5529 13 12 12.5528 12 12V10.5C12 10.2239 12.2239 10 12.5 10C12.7761 10 13 10.2239 13 10.5V12C13 13.1041 12.1062 14 11.0012 14H3.99635C2.89019 14 2 13.103 2 12V10.5C2 10.2239 2.22386 10 2.5 10Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd"/></svg>
+                                {ext}
+                              </a>
+                            );
+                          })}
                         </div>
                       </div>
                     ))}
@@ -429,10 +460,9 @@ export default async function BrandPage() {
             </div>
 
             <div className="card mt-8">
-              <div className="mb-3">Letterhead Template</div>
-              <p className="mb-4">
-                The official letterhead template has been audited and added to the repository with a preview image.
-                Use this template for formal correspondence to preserve exact brand layout.
+              <div className="font-bold text-base mb-1" style={{ color: '#000080' }}>Letterhead Template</div>
+              <p className="mb-4" style={{ color: '#4A4A4B' }}>
+                Use this template for all formal correspondence. It preserves the correct brand layout, header scale, and spacing.
               </p>
               <div className="grid lg:grid-cols-2 gap-5 items-start">
                 <div className="rounded-lg border border-plrei-bg-border bg-white p-3">
@@ -470,19 +500,26 @@ export default async function BrandPage() {
             <p className="section-label">03 - Colors</p>
             <h2 className="section-title">Approved Color System</h2>
             <p className="section-body mb-8">
-              Use these four approved tokens consistently across digital UI and brand-support applications.
+              These are the only approved colors for PLREI digital and brand materials. Use them consistently across all applications.
             </p>
             <div className="grid sm:grid-cols-2 gap-4">
               {APPROVED_COLOR_SYSTEM.map((color) => (
                 <ColorSwatch key={color.name} {...color} />
               ))}
             </div>
+
+            <h3 className="text-xl font-bold mt-8 mb-3" style={{ color: '#3F4042' }}>Neutrals</h3>
+            <div className="grid sm:grid-cols-2 gap-4">
+              {NEUTRAL_COLOR_SYSTEM.map((color) => (
+                <ColorSwatch key={color.name} {...color} />
+              ))}
+            </div>
           </div>
         </section>
 
-        <section id="iconography" className="border-b border-plrei-bg-border">
+        <section id="iconography" className="bg-plrei-bg-light border-b border-plrei-bg-border">
           <div className="max-w-5xl mx-auto px-6 py-14">
-            <p className="section-label">05 - Iconography</p>
+            <p className="section-label">04 - Iconography</p>
             <h2 className="section-title">Email Signature Icons</h2>
             <div
               className="rounded-xl border mb-8 p-5"
@@ -526,9 +563,9 @@ export default async function BrandPage() {
           </div>
         </section>
 
-        <section id="applications" className="bg-plrei-bg-light border-b border-plrei-bg-border">
+        <section id="applications" className="border-b border-plrei-bg-border">
           <div className="max-w-5xl mx-auto px-6 py-14">
-            <p className="section-label">06 - Applications</p>
+            <p className="section-label">05 - Applications</p>
             <h2 className="section-title">Operational Usage</h2>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
               <div className="card border-t-4" style={{ borderTopColor: '#F5C518' }}>
@@ -552,7 +589,7 @@ export default async function BrandPage() {
           <div className="h-2" style={{ backgroundColor: '#F5C518' }} />
           <div className="" style={{ backgroundColor: '#000080', color: '#FFFFFF' }}>
             <div className="max-w-5xl mx-auto px-6 py-6 flex items-center gap-3">
-              <span>Official brand compliance reference. (c) {currentYear} Power Line Rent-E-Quip, Inc.</span>
+              <span>Official brand compliance reference. © {currentYear} Power Line Rent-E-Quip, Inc.</span>
             </div>
           </div>
         </footer>

@@ -5,44 +5,20 @@ import { isAdminSession } from '@/lib/auth/admin';
 import { prisma } from '@/lib/prisma';
 import { encryptSsoSecret, hasSsoEncryptionKey } from '@/lib/auth/sso-secrets';
 
-const providerSchema = z.object({
+// providerKey: lowercase alphanumeric + hyphens, 1–60 chars, must start with a letter
+const PROVIDER_KEY_RE = /^[a-z][a-z0-9-]{0,59}$/;
+
+const createProviderSchema = z.object({
+  providerKey: z.string().regex(PROVIDER_KEY_RE, 'providerKey must be lowercase letters, digits, and hyphens (start with a letter, max 60 chars)'),
+  type: z.enum(['google', 'microsoft']),
+  displayName: z.string().trim().min(1).max(100),
   clientId: z.string().trim().min(1).max(300),
-  clientSecret: z.string().trim().max(500).optional(),
+  clientSecret: z.string().trim().min(1).max(500),
+  tenantId: z.string().trim().max(200).optional(),
+  redirectUri: z.string().trim().url().max(500).optional(),
   scope: z.string().trim().min(1).max(500).default('openid profile email'),
   isActive: z.boolean().default(false),
 });
-
-const googleSchema = providerSchema.extend({
-  callbackUrl: z.string().trim().url().max(500),
-});
-
-const microsoftSchema = providerSchema.extend({
-  tenantId: z.string().trim().min(1).max(200),
-  redirectUri: z.string().trim().url().max(500),
-});
-
-const bodySchema = z.object({
-  google: googleSchema,
-  microsoft: microsoftSchema,
-});
-
-type SsoResponse = {
-  google: {
-    clientId: string;
-    callbackUrl: string;
-    scope: string;
-    isActive: boolean;
-    hasClientSecret: boolean;
-  };
-  microsoft: {
-    tenantId: string;
-    clientId: string;
-    redirectUri: string;
-    scope: string;
-    isActive: boolean;
-    hasClientSecret: boolean;
-  };
-};
 
 function unauthorized() {
   return NextResponse.json({ error: 'Forbidden.' }, { status: 403 });
@@ -50,56 +26,46 @@ function unauthorized() {
 
 export async function GET() {
   const session = await auth();
-  if (!isAdminSession(session)) {
-    return unauthorized();
-  }
+  if (!isAdminSession(session)) return unauthorized();
 
-  const providers = await prisma.ssoProviderConfig.findMany({
-    where: { providerKey: { in: ['google', 'microsoft'] } },
+  const rows = await prisma.ssoProviderConfig.findMany({
     select: {
       providerKey: true,
+      type: true,
+      displayName: true,
       clientId: true,
       clientSecretEncrypted: true,
-      callbackUrl: true,
-      redirectUri: true,
-      scope: true,
       tenantId: true,
+      redirectUri: true,
+      callbackUrl: true,
+      scope: true,
       isActive: true,
     },
+    orderBy: [{ type: 'asc' }, { providerKey: 'asc' }],
   });
 
-  const google = providers.find((provider) => provider.providerKey === 'google');
-  const microsoft = providers.find((provider) => provider.providerKey === 'microsoft');
-
-  const response: SsoResponse = {
-    google: {
-      clientId: google?.clientId ?? '',
-      callbackUrl: google?.callbackUrl ?? '',
-      scope: google?.scope ?? 'openid profile email',
-      isActive: google?.isActive ?? false,
-      hasClientSecret: Boolean(google?.clientSecretEncrypted),
-    },
-    microsoft: {
-      tenantId: microsoft?.tenantId ?? '',
-      clientId: microsoft?.clientId ?? '',
-      redirectUri: microsoft?.redirectUri ?? '',
-      scope: microsoft?.scope ?? 'openid profile email',
-      isActive: microsoft?.isActive ?? false,
-      hasClientSecret: Boolean(microsoft?.clientSecretEncrypted),
-    },
-  };
-
-  return NextResponse.json(response);
+  return NextResponse.json({
+    providers: rows.map((row) => ({
+      providerKey: row.providerKey,
+      type: row.type,
+      displayName: row.displayName,
+      clientId: row.clientId,
+      tenantId: row.tenantId ?? '',
+      redirectUri: row.redirectUri ?? row.callbackUrl ?? '',
+      scope: row.scope,
+      isActive: row.isActive,
+      hasClientSecret: Boolean(row.clientSecretEncrypted),
+    })),
+  });
 }
 
-export async function PATCH(request: Request) {
+export async function POST(request: Request) {
   const session = await auth();
-  if (!isAdminSession(session)) {
-    return unauthorized();
-  }
+  if (!isAdminSession(session)) return unauthorized();
+
   if (!hasSsoEncryptionKey()) {
     return NextResponse.json(
-      { error: 'SSO_ENCRYPTION_KEY or AUTH_SECRET must be configured to store SSO secrets.' },
+      { error: 'SSO_ENCRYPTION_KEY or AUTH_SECRET must be configured before storing SSO secrets.' },
       { status: 500 }
     );
   }
@@ -111,89 +77,51 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: 'Invalid request body.' }, { status: 400 });
   }
 
-  const parsed = bodySchema.safeParse(body);
+  const parsed = createProviderSchema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: 'Invalid SSO configuration payload.' }, { status: 400 });
-  }
-
-  const existing = await prisma.ssoProviderConfig.findMany({
-    where: { providerKey: { in: ['google', 'microsoft'] } },
-    select: { providerKey: true, clientSecretEncrypted: true },
-  });
-  const existingMap = new Map(existing.map((row) => [row.providerKey, row.clientSecretEncrypted]));
-
-  const googleSecret = parsed.data.google.clientSecret
-    ? encryptSsoSecret(parsed.data.google.clientSecret)
-    : existingMap.get('google') ?? null;
-  const microsoftSecret = parsed.data.microsoft.clientSecret
-    ? encryptSsoSecret(parsed.data.microsoft.clientSecret)
-    : existingMap.get('microsoft') ?? null;
-
-  if (!googleSecret || !microsoftSecret) {
     return NextResponse.json(
-      { error: 'Client secret is required for both Google and Microsoft before saving.' },
+      { error: parsed.error.issues.map((i) => i.message).join('; ') },
       { status: 400 }
     );
   }
 
-  await prisma.$transaction([
-    prisma.ssoProviderConfig.upsert({
-      where: { providerKey: 'google' },
-      update: {
-        type: 'google',
-        displayName: 'Google',
-        clientId: parsed.data.google.clientId,
-        clientSecretEncrypted: googleSecret,
-        callbackUrl: parsed.data.google.callbackUrl,
-        redirectUri: parsed.data.google.callbackUrl,
-        issuer: 'https://accounts.google.com',
-        tenantId: null,
-        scope: parsed.data.google.scope,
-        isActive: parsed.data.google.isActive,
-      },
-      create: {
-        providerKey: 'google',
-        type: 'google',
-        displayName: 'Google',
-        clientId: parsed.data.google.clientId,
-        clientSecretEncrypted: googleSecret,
-        callbackUrl: parsed.data.google.callbackUrl,
-        redirectUri: parsed.data.google.callbackUrl,
-        issuer: 'https://accounts.google.com',
-        tenantId: null,
-        scope: parsed.data.google.scope,
-        isActive: parsed.data.google.isActive,
-      },
-    }),
-    prisma.ssoProviderConfig.upsert({
-      where: { providerKey: 'microsoft' },
-      update: {
-        type: 'microsoft',
-        displayName: 'Microsoft Entra ID',
-        tenantId: parsed.data.microsoft.tenantId,
-        clientId: parsed.data.microsoft.clientId,
-        clientSecretEncrypted: microsoftSecret,
-        callbackUrl: parsed.data.microsoft.redirectUri,
-        redirectUri: parsed.data.microsoft.redirectUri,
-        issuer: null,
-        scope: parsed.data.microsoft.scope,
-        isActive: parsed.data.microsoft.isActive,
-      },
-      create: {
-        providerKey: 'microsoft',
-        type: 'microsoft',
-        displayName: 'Microsoft Entra ID',
-        tenantId: parsed.data.microsoft.tenantId,
-        clientId: parsed.data.microsoft.clientId,
-        clientSecretEncrypted: microsoftSecret,
-        callbackUrl: parsed.data.microsoft.redirectUri,
-        redirectUri: parsed.data.microsoft.redirectUri,
-        issuer: null,
-        scope: parsed.data.microsoft.scope,
-        isActive: parsed.data.microsoft.isActive,
-      },
-    }),
-  ]);
+  const { providerKey, type, displayName, clientId, clientSecret, tenantId, redirectUri, scope, isActive } = parsed.data;
 
-  return NextResponse.json({ ok: true });
+  if (type === 'microsoft' && !tenantId) {
+    return NextResponse.json({ error: 'tenantId is required for Microsoft providers.' }, { status: 400 });
+  }
+  if (type === 'microsoft' && !redirectUri) {
+    return NextResponse.json({ error: 'redirectUri is required for Microsoft providers.' }, { status: 400 });
+  }
+  if (type === 'google' && !redirectUri) {
+    return NextResponse.json({ error: 'redirectUri (callback URL) is required for Google providers.' }, { status: 400 });
+  }
+
+  const existing = await prisma.ssoProviderConfig.findUnique({ where: { providerKey } });
+  if (existing) {
+    return NextResponse.json({ error: `Provider key "${providerKey}" already exists.` }, { status: 409 });
+  }
+
+  const encryptedSecret = encryptSsoSecret(clientSecret);
+  if (!encryptedSecret) {
+    return NextResponse.json({ error: 'Failed to encrypt client secret.' }, { status: 500 });
+  }
+
+  await prisma.ssoProviderConfig.create({
+    data: {
+      providerKey,
+      type,
+      displayName,
+      clientId,
+      clientSecretEncrypted: encryptedSecret,
+      tenantId: tenantId ?? null,
+      callbackUrl: redirectUri ?? null,
+      redirectUri: redirectUri ?? null,
+      issuer: type === 'google' ? 'https://accounts.google.com' : null,
+      scope,
+      isActive,
+    },
+  });
+
+  return NextResponse.json({ ok: true }, { status: 201 });
 }

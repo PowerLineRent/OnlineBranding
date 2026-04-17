@@ -1,404 +1,686 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 
-type SsoConfigResponse = {
-  google: {
-    clientId: string;
-    callbackUrl: string;
-    scope: string;
-    isActive: boolean;
-    hasClientSecret: boolean;
-  };
-  microsoft: {
-    tenantId: string;
-    clientId: string;
-    redirectUri: string;
-    scope: string;
-    isActive: boolean;
-    hasClientSecret: boolean;
-  };
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+type ProviderRow = {
+  providerKey: string;
+  type: 'google' | 'microsoft';
+  displayName: string;
+  clientId: string;
+  tenantId: string;
+  redirectUri: string;
+  scope: string;
+  isActive: boolean;
+  hasClientSecret: boolean;
 };
 
-type UserListResponse = {
-  users: Array<{
-    id: string;
-    email: string;
-    role: string;
-    lastLoginAt: string | null;
-    status: string;
-  }>;
+type DomainMappingRow = {
+  id: string;
+  domain: string;
+  providerKey: string;
+  displayName: string | null;
+  enforceSso: boolean;
+  isActive: boolean;
 };
 
-type SsoFormState = {
-  google: {
-    clientId: string;
-    clientSecret: string;
-    callbackUrl: string;
-    scope: string;
-    isActive: boolean;
-    hasClientSecret: boolean;
-  };
-  microsoft: {
-    tenantId: string;
-    clientId: string;
-    clientSecret: string;
-    redirectUri: string;
-    scope: string;
-    isActive: boolean;
-    hasClientSecret: boolean;
-  };
+type UserRow = {
+  id: string;
+  email: string;
+  role: string;
+  lastLoginAt: string | null;
+  status: string;
 };
 
-const initialFormState: SsoFormState = {
-  google: {
-    clientId: '',
-    clientSecret: '',
-    callbackUrl: '',
-    scope: 'openid profile email',
-    isActive: false,
-    hasClientSecret: false,
-  },
-  microsoft: {
-    tenantId: '',
-    clientId: '',
-    clientSecret: '',
-    redirectUri: '',
-    scope: 'openid profile email',
-    isActive: false,
-    hasClientSecret: false,
-  },
+const BLANK_PROVIDER: Omit<ProviderRow, 'hasClientSecret'> & { clientSecret: string } = {
+  providerKey: '',
+  type: 'microsoft',
+  displayName: '',
+  clientId: '',
+  clientSecret: '',
+  tenantId: '',
+  redirectUri: '',
+  scope: 'openid profile email',
+  isActive: false,
 };
 
-function toFormState(payload: SsoConfigResponse): SsoFormState {
-  return {
-    google: {
-      clientId: payload.google.clientId,
-      clientSecret: '',
-      callbackUrl: payload.google.callbackUrl,
-      scope: payload.google.scope,
-      isActive: payload.google.isActive,
-      hasClientSecret: payload.google.hasClientSecret,
-    },
-    microsoft: {
-      tenantId: payload.microsoft.tenantId,
-      clientId: payload.microsoft.clientId,
-      clientSecret: '',
-      redirectUri: payload.microsoft.redirectUri,
-      scope: payload.microsoft.scope,
-      isActive: payload.microsoft.isActive,
-      hasClientSecret: payload.microsoft.hasClientSecret,
-    },
-  };
+const BLANK_MAPPING = {
+  domain: '',
+  providerKey: '',
+  displayName: '',
+  enforceSso: true,
+  isActive: true,
+};
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function origin(): string {
+  return typeof window !== 'undefined' ? window.location.origin : 'https://your-domain.com';
 }
 
-function formatLastLogin(value: string | null): string {
+function callbackUrl(providerKey: string): string {
+  return `${origin()}/api/auth/callback/${providerKey}`;
+}
+
+function formatDate(value: string | null): string {
   if (!value) return 'Never';
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return 'Unknown';
-  return date.toLocaleString();
+  const d = new Date(value);
+  return Number.isNaN(d.getTime()) ? 'Unknown' : d.toLocaleString();
 }
 
-export default function AdminSsoPortal() {
-  const [formState, setFormState] = useState<SsoFormState>(initialFormState);
-  const [users, setUsers] = useState<UserListResponse['users']>([]);
-  const [loading, setLoading] = useState(true);
+// ─── Shared sub-components ────────────────────────────────────────────────────
+
+function Field({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <label className="block text-sm">
+      <span className="mb-1 block font-medium text-gray-700">{label}</span>
+      {children}
+    </label>
+  );
+}
+
+function Input(props: React.InputHTMLAttributes<HTMLInputElement>) {
+  return (
+    <input
+      {...props}
+      className={`w-full border border-gray-300 rounded-md px-3 py-2 text-sm ${props.className ?? ''}`}
+    />
+  );
+}
+
+function Badge({ active }: { active: boolean }) {
+  return (
+    <span
+      className={`inline-block text-xs px-2 py-0.5 rounded-full font-medium ${
+        active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-500'
+      }`}
+    >
+      {active ? 'Active' : 'Inactive'}
+    </span>
+  );
+}
+
+// ─── Provider form ────────────────────────────────────────────────────────────
+
+type ProviderFormProps = {
+  initial?: ProviderRow;
+  isNew: boolean;
+  providerKeys: string[];
+  onSave: () => void;
+  onCancel: () => void;
+};
+
+function ProviderForm({ initial, isNew, providerKeys, onSave, onCancel }: ProviderFormProps) {
+  const [form, setForm] = useState({
+    providerKey: initial?.providerKey ?? BLANK_PROVIDER.providerKey,
+    type: initial?.type ?? BLANK_PROVIDER.type,
+    displayName: initial?.displayName ?? BLANK_PROVIDER.displayName,
+    clientId: initial?.clientId ?? BLANK_PROVIDER.clientId,
+    clientSecret: '',
+    tenantId: initial?.tenantId ?? BLANK_PROVIDER.tenantId,
+    redirectUri: initial?.redirectUri ?? BLANK_PROVIDER.redirectUri,
+    scope: initial?.scope ?? BLANK_PROVIDER.scope,
+    isActive: initial?.isActive ?? BLANK_PROVIDER.isActive,
+    hasClientSecret: initial?.hasClientSecret ?? false,
+  });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
 
-  async function loadData() {
+  function set<K extends keyof typeof form>(key: K, value: (typeof form)[K]) {
+    setForm((prev) => ({ ...prev, [key]: value }));
+  }
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    setSaving(true);
+    setError('');
+
+    const body: Record<string, unknown> = {
+      displayName: form.displayName,
+      clientId: form.clientId,
+      tenantId: form.tenantId || undefined,
+      redirectUri: form.redirectUri || undefined,
+      scope: form.scope,
+      isActive: form.isActive,
+    };
+    if (form.clientSecret) body.clientSecret = form.clientSecret;
+
+    let res: Response;
+    if (isNew) {
+      body.providerKey = form.providerKey;
+      body.type = form.type;
+      if (!body.clientSecret) {
+        setError('Client secret is required when creating a new provider.');
+        setSaving(false);
+        return;
+      }
+      res = await fetch('/api/admin/sso', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+    } else {
+      res = await fetch(`/api/admin/sso/${encodeURIComponent(form.providerKey)}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+    }
+
+    const json = (await res.json()) as { error?: string };
+    if (!res.ok) {
+      setError(json.error ?? 'Failed to save provider.');
+      setSaving(false);
+      return;
+    }
+    onSave();
+  }
+
+  const suggestedCallback = form.providerKey ? callbackUrl(form.providerKey) : '';
+
+  return (
+    <form onSubmit={submit} className="space-y-4 p-5 rounded-lg border border-gray-200 bg-gray-50">
+      <h3 className="font-semibold text-base">{isNew ? 'New SSO Provider' : `Edit: ${initial?.displayName}`}</h3>
+
+      {isNew && (
+        <div className="grid sm:grid-cols-2 gap-3">
+          <Field label="Provider Key">
+            <Input
+              value={form.providerKey}
+              onChange={(e) => set('providerKey', e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
+              placeholder="e.g. microsoft-mirk"
+              required
+            />
+            <p className="text-xs text-gray-500 mt-1">Lowercase, hyphens only. Used in the OAuth callback URL.</p>
+          </Field>
+          <Field label="Provider Type">
+            <select
+              className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+              value={form.type}
+              onChange={(e) => set('type', e.target.value as 'google' | 'microsoft')}
+            >
+              <option value="microsoft">Microsoft Entra ID</option>
+              <option value="google">Google</option>
+            </select>
+          </Field>
+        </div>
+      )}
+
+      <Field label="Display Name">
+        <Input value={form.displayName} onChange={(e) => set('displayName', e.target.value)} required />
+      </Field>
+
+      <div className="grid sm:grid-cols-2 gap-3">
+        <Field label="Client ID">
+          <Input value={form.clientId} onChange={(e) => set('clientId', e.target.value)} required />
+        </Field>
+        <Field label={`Client Secret${form.hasClientSecret ? ' (leave blank to keep current)' : ''}`}>
+          <Input
+            type="password"
+            value={form.clientSecret}
+            onChange={(e) => set('clientSecret', e.target.value)}
+            placeholder={form.hasClientSecret ? 'Stored – leave blank to keep' : ''}
+          />
+        </Field>
+      </div>
+
+      {(isNew ? form.type : initial?.type) === 'microsoft' && (
+        <Field label="Tenant ID (Directory ID)">
+          <Input value={form.tenantId} onChange={(e) => set('tenantId', e.target.value)} required />
+        </Field>
+      )}
+
+      <Field label={`Redirect / Callback URI${suggestedCallback ? ` — suggested: ${suggestedCallback}` : ''}`}>
+        <Input
+          value={form.redirectUri}
+          onChange={(e) => set('redirectUri', e.target.value)}
+          placeholder={suggestedCallback || 'https://your-domain.com/api/auth/callback/...'}
+          required
+        />
+      </Field>
+
+      <Field label="Scopes">
+        <Input value={form.scope} onChange={(e) => set('scope', e.target.value)} />
+      </Field>
+
+      <label className="inline-flex items-center gap-2 text-sm">
+        <input type="checkbox" checked={form.isActive} onChange={(e) => set('isActive', e.target.checked)} />
+        <span>Enable this provider for login</span>
+      </label>
+
+      {error && <p className="text-sm text-red-600">{error}</p>}
+
+      <div className="flex gap-2">
+        <button
+          type="submit"
+          disabled={saving}
+          className="px-4 py-2 rounded bg-plrei-navy text-white text-sm disabled:opacity-50"
+        >
+          {saving ? 'Saving…' : 'Save Provider'}
+        </button>
+        <button type="button" onClick={onCancel} className="px-4 py-2 rounded border border-gray-300 text-sm">
+          Cancel
+        </button>
+      </div>
+    </form>
+  );
+}
+
+// ─── Domain mapping form ──────────────────────────────────────────────────────
+
+type MappingFormProps = {
+  initial?: DomainMappingRow;
+  isNew: boolean;
+  providerKeys: string[];
+  onSave: () => void;
+  onCancel: () => void;
+};
+
+function MappingForm({ initial, isNew, providerKeys, onSave, onCancel }: MappingFormProps) {
+  const [form, setForm] = useState({
+    domain: initial?.domain ?? BLANK_MAPPING.domain,
+    providerKey: initial?.providerKey ?? (providerKeys[0] ?? ''),
+    displayName: initial?.displayName ?? BLANK_MAPPING.displayName,
+    enforceSso: initial?.enforceSso ?? BLANK_MAPPING.enforceSso,
+    isActive: initial?.isActive ?? BLANK_MAPPING.isActive,
+  });
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+
+  function set<K extends keyof typeof form>(key: K, value: (typeof form)[K]) {
+    setForm((prev) => ({ ...prev, [key]: value }));
+  }
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    setSaving(true);
+    setError('');
+
+    const body = {
+      providerKey: form.providerKey,
+      displayName: form.displayName || undefined,
+      enforceSso: form.enforceSso,
+      isActive: form.isActive,
+    };
+
+    let res: Response;
+    if (isNew) {
+      res = await fetch('/api/admin/sso/domains', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ domain: form.domain, ...body }),
+      });
+    } else {
+      res = await fetch(`/api/admin/sso/domains/${encodeURIComponent(initial!.id)}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+    }
+
+    const json = (await res.json()) as { error?: string };
+    if (!res.ok) {
+      setError(json.error ?? 'Failed to save domain mapping.');
+      setSaving(false);
+      return;
+    }
+    onSave();
+  }
+
+  return (
+    <form onSubmit={submit} className="space-y-3 p-5 rounded-lg border border-gray-200 bg-gray-50">
+      <h3 className="font-semibold text-base">{isNew ? 'New Domain Mapping' : `Edit: ${initial?.domain}`}</h3>
+
+      <div className="grid sm:grid-cols-2 gap-3">
+        {isNew && (
+          <Field label="Domain">
+            <Input
+              value={form.domain}
+              onChange={(e) => set('domain', e.target.value.toLowerCase().trim())}
+              placeholder="e.g. mirkinc.us"
+              required
+            />
+          </Field>
+        )}
+        <Field label="SSO Provider">
+          <select
+            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+            value={form.providerKey}
+            onChange={(e) => set('providerKey', e.target.value)}
+            required
+          >
+            <option value="">— select a provider —</option>
+            {providerKeys.map((key) => (
+              <option key={key} value={key}>{key}</option>
+            ))}
+          </select>
+        </Field>
+        <Field label="Display Name (optional)">
+          <Input value={form.displayName} onChange={(e) => set('displayName', e.target.value)} placeholder="e.g. Mirk Inc" />
+        </Field>
+      </div>
+
+      <div className="flex gap-4">
+        <label className="inline-flex items-center gap-2 text-sm">
+          <input type="checkbox" checked={form.enforceSso} onChange={(e) => set('enforceSso', e.target.checked)} />
+          <span>Enforce SSO (block password login for this domain)</span>
+        </label>
+        <label className="inline-flex items-center gap-2 text-sm">
+          <input type="checkbox" checked={form.isActive} onChange={(e) => set('isActive', e.target.checked)} />
+          <span>Active</span>
+        </label>
+      </div>
+
+      {error && <p className="text-sm text-red-600">{error}</p>}
+
+      <div className="flex gap-2">
+        <button
+          type="submit"
+          disabled={saving}
+          className="px-4 py-2 rounded bg-plrei-navy text-white text-sm disabled:opacity-50"
+        >
+          {saving ? 'Saving…' : 'Save Mapping'}
+        </button>
+        <button type="button" onClick={onCancel} className="px-4 py-2 rounded border border-gray-300 text-sm">
+          Cancel
+        </button>
+      </div>
+    </form>
+  );
+}
+
+// ─── Main component ───────────────────────────────────────────────────────────
+
+export default function AdminSsoPortal() {
+  const [providers, setProviders] = useState<ProviderRow[]>([]);
+  const [mappings, setMappings] = useState<DomainMappingRow[]>([]);
+  const [users, setUsers] = useState<UserRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  const [editingProvider, setEditingProvider] = useState<ProviderRow | null>(null);
+  const [addingProvider, setAddingProvider] = useState(false);
+
+  const [editingMapping, setEditingMapping] = useState<DomainMappingRow | null>(null);
+  const [addingMapping, setAddingMapping] = useState(false);
+
+  const [deleteConfirm, setDeleteConfirm] = useState<{ type: 'provider' | 'mapping'; id: string; label: string } | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
+
+  async function loadAll() {
     setLoading(true);
     setError('');
     try {
-      const [ssoRes, usersRes] = await Promise.all([fetch('/api/admin/sso'), fetch('/api/admin/users')]);
-      if (!ssoRes.ok || !usersRes.ok) {
-        throw new Error('Unable to load admin data.');
-      }
-      const ssoPayload = (await ssoRes.json()) as SsoConfigResponse;
-      const userPayload = (await usersRes.json()) as UserListResponse;
-      setFormState(toFormState(ssoPayload));
-      setUsers(userPayload.users);
-    } catch (loadError) {
-      setError(loadError instanceof Error ? loadError.message : 'Unable to load admin data.');
+      const [provRes, domRes, usrRes] = await Promise.all([
+        fetch('/api/admin/sso'),
+        fetch('/api/admin/sso/domains'),
+        fetch('/api/admin/users'),
+      ]);
+      if (!provRes.ok || !domRes.ok || !usrRes.ok) throw new Error('Failed to load admin data.');
+      const provJson = (await provRes.json()) as { providers: ProviderRow[] };
+      const domJson = (await domRes.json()) as { mappings: DomainMappingRow[] };
+      const usrJson = (await usrRes.json()) as { users: UserRow[] };
+      setProviders(provJson.providers);
+      setMappings(domJson.mappings);
+      setUsers(usrJson.users);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load admin data.');
     } finally {
       setLoading(false);
     }
   }
 
-  useEffect(() => {
-    void loadData();
-  }, []);
+  useEffect(() => { void loadAll(); }, []);
 
-  const googleCallbackSuggestion = useMemo(
-    () => `${typeof window !== 'undefined' ? window.location.origin : 'https://your-domain.com'}/api/auth/callback/google`,
-    []
-  );
-  const microsoftCallbackSuggestion = useMemo(
-    () => `${typeof window !== 'undefined' ? window.location.origin : 'https://your-domain.com'}/api/auth/callback/microsoft`,
-    []
-  );
+  async function confirmDelete() {
+    if (!deleteConfirm) return;
+    setDeleting(true);
+    setDeleteError('');
 
-  async function saveConfig() {
-    setSaving(true);
-    setError('');
-    setSuccess('');
-    try {
-      const response = await fetch('/api/admin/sso', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          google: {
-            clientId: formState.google.clientId,
-            clientSecret: formState.google.clientSecret || undefined,
-            callbackUrl: formState.google.callbackUrl,
-            scope: formState.google.scope,
-            isActive: formState.google.isActive,
-          },
-          microsoft: {
-            tenantId: formState.microsoft.tenantId,
-            clientId: formState.microsoft.clientId,
-            clientSecret: formState.microsoft.clientSecret || undefined,
-            redirectUri: formState.microsoft.redirectUri,
-            scope: formState.microsoft.scope,
-            isActive: formState.microsoft.isActive,
-          },
-        }),
-      });
+    const url =
+      deleteConfirm.type === 'provider'
+        ? `/api/admin/sso/${encodeURIComponent(deleteConfirm.id)}`
+        : `/api/admin/sso/domains/${encodeURIComponent(deleteConfirm.id)}`;
 
-      const payload = (await response.json()) as { error?: string };
-      if (!response.ok) {
-        throw new Error(payload.error ?? 'Unable to save SSO configuration.');
-      }
-      setSuccess('SSO configuration saved.');
-      await loadData();
-    } catch (saveError) {
-      setError(saveError instanceof Error ? saveError.message : 'Unable to save SSO configuration.');
-    } finally {
-      setSaving(false);
+    const res = await fetch(url, { method: 'DELETE' });
+    const json = (await res.json()) as { error?: string };
+    if (!res.ok) {
+      setDeleteError(json.error ?? 'Delete failed.');
+      setDeleting(false);
+      return;
     }
+    setDeleteConfirm(null);
+    setDeleting(false);
+    void loadAll();
   }
+
+  const providerKeys = providers.map((p) => p.providerKey);
 
   if (loading) {
     return (
       <div className="max-w-6xl mx-auto px-6 py-8">
-        <p>Loading administrative settings...</p>
+        <p className="text-sm text-gray-500">Loading administrative settings…</p>
       </div>
     );
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-8 space-y-8">
-      <section className="rounded-xl border border-gray-200 bg-white p-6 space-y-6">
-        <div>
-          <h1 className="text-2xl font-semibold">Administrative SSO Configuration</h1>
-          <p className="text-sm text-gray-600 mt-1">
-            Manage Google and Microsoft OAuth credentials here. Secrets are stored encrypted in the database.
-          </p>
+    <div className="max-w-6xl mx-auto px-6 py-8 space-y-10">
+      {error && <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md px-4 py-3">{error}</p>}
+
+      {/* ── Delete confirmation modal ── */}
+      {deleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
+          <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 max-w-sm w-full space-y-4">
+            <h3 className="font-semibold">Confirm deletion</h3>
+            <p className="text-sm text-gray-600">
+              Delete <strong>{deleteConfirm.label}</strong>? This cannot be undone.
+            </p>
+            {deleteError && <p className="text-sm text-red-600">{deleteError}</p>}
+            <div className="flex gap-2">
+              <button
+                onClick={confirmDelete}
+                disabled={deleting}
+                className="px-4 py-2 rounded bg-red-600 text-white text-sm disabled:opacity-50"
+              >
+                {deleting ? 'Deleting…' : 'Delete'}
+              </button>
+              <button
+                onClick={() => { setDeleteConfirm(null); setDeleteError(''); }}
+                className="px-4 py-2 rounded border border-gray-300 text-sm"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── SSO Providers ── */}
+      <section className="rounded-xl border border-gray-200 bg-white p-6 space-y-5">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-semibold">SSO Providers</h1>
+            <p className="text-sm text-gray-500 mt-1">
+              Each provider is a distinct OAuth app registration. Multiple tenants of the same type (e.g. two Microsoft orgs)
+              each get their own entry with a unique provider key.
+            </p>
+          </div>
+          {!addingProvider && !editingProvider && (
+            <button
+              onClick={() => setAddingProvider(true)}
+              className="shrink-0 px-4 py-2 rounded bg-plrei-navy text-white text-sm"
+            >
+              + Add Provider
+            </button>
+          )}
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-6">
-          <article className="rounded-lg border border-gray-200 p-4 space-y-3">
-            <h2 className="text-lg font-semibold">Google OAuth Setup</h2>
-            <ol className="list-decimal pl-5 space-y-1 text-sm text-gray-700">
-              <li>Open Google Cloud Console and select your project.</li>
-              <li>Go to APIs & Services, then Credentials, and create an OAuth 2.0 Client ID (Web application).</li>
-              <li>Add an authorized redirect URI: <code>{formState.google.callbackUrl || googleCallbackSuggestion}</code>.</li>
-              <li>Copy Client ID and Client Secret into the fields below.</li>
-              <li>Recommended scopes: <code>openid profile email</code>.</li>
-            </ol>
+        {addingProvider && (
+          <ProviderForm
+            isNew
+            providerKeys={providerKeys}
+            onSave={() => { setAddingProvider(false); void loadAll(); }}
+            onCancel={() => setAddingProvider(false)}
+          />
+        )}
 
-            <label className="block text-sm">
-              <span className="mb-1 block">Client ID</span>
-              <input
-                className="w-full border border-gray-300 rounded-md px-3 py-2"
-                value={formState.google.clientId}
-                onChange={(event) =>
-                  setFormState((prev) => ({
-                    ...prev,
-                    google: { ...prev.google, clientId: event.target.value },
-                  }))
-                }
-              />
-            </label>
+        {editingProvider && (
+          <ProviderForm
+            initial={editingProvider}
+            isNew={false}
+            providerKeys={providerKeys}
+            onSave={() => { setEditingProvider(null); void loadAll(); }}
+            onCancel={() => setEditingProvider(null)}
+          />
+        )}
 
-            <label className="block text-sm">
-              <span className="mb-1 block">Client Secret</span>
-              <input
-                type="password"
-                placeholder={formState.google.hasClientSecret ? 'Stored (leave blank to keep current secret)' : ''}
-                className="w-full border border-gray-300 rounded-md px-3 py-2"
-                value={formState.google.clientSecret}
-                onChange={(event) =>
-                  setFormState((prev) => ({
-                    ...prev,
-                    google: { ...prev.google, clientSecret: event.target.value },
-                  }))
-                }
-              />
-            </label>
-
-            <label className="block text-sm">
-              <span className="mb-1 block">Callback URL</span>
-              <input
-                className="w-full border border-gray-300 rounded-md px-3 py-2"
-                value={formState.google.callbackUrl}
-                onChange={(event) =>
-                  setFormState((prev) => ({
-                    ...prev,
-                    google: { ...prev.google, callbackUrl: event.target.value },
-                  }))
-                }
-              />
-            </label>
-
-            <label className="block text-sm">
-              <span className="mb-1 block">Scopes</span>
-              <input
-                className="w-full border border-gray-300 rounded-md px-3 py-2"
-                value={formState.google.scope}
-                onChange={(event) =>
-                  setFormState((prev) => ({
-                    ...prev,
-                    google: { ...prev.google, scope: event.target.value },
-                  }))
-                }
-              />
-            </label>
-
-            <label className="inline-flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
-                checked={formState.google.isActive}
-                onChange={(event) =>
-                  setFormState((prev) => ({
-                    ...prev,
-                    google: { ...prev.google, isActive: event.target.checked },
-                  }))
-                }
-              />
-              <span>Enable Google SSO</span>
-            </label>
-          </article>
-
-          <article className="rounded-lg border border-gray-200 p-4 space-y-3">
-            <h2 className="text-lg font-semibold">Microsoft Entra ID Setup</h2>
-            <ol className="list-decimal pl-5 space-y-1 text-sm text-gray-700">
-              <li>Open Microsoft Entra admin center and go to App registrations.</li>
-              <li>Create or open the app registration used for PLREI authentication.</li>
-              <li>Copy Directory (tenant) ID, Application (client) ID, and create a client secret.</li>
-              <li>Add a web redirect URI: <code>{formState.microsoft.redirectUri || microsoftCallbackSuggestion}</code>.</li>
-              <li>Recommended scopes: <code>openid profile email</code>.</li>
-            </ol>
-
-            <label className="block text-sm">
-              <span className="mb-1 block">Tenant ID</span>
-              <input
-                className="w-full border border-gray-300 rounded-md px-3 py-2"
-                value={formState.microsoft.tenantId}
-                onChange={(event) =>
-                  setFormState((prev) => ({
-                    ...prev,
-                    microsoft: { ...prev.microsoft, tenantId: event.target.value },
-                  }))
-                }
-              />
-            </label>
-
-            <label className="block text-sm">
-              <span className="mb-1 block">Client ID</span>
-              <input
-                className="w-full border border-gray-300 rounded-md px-3 py-2"
-                value={formState.microsoft.clientId}
-                onChange={(event) =>
-                  setFormState((prev) => ({
-                    ...prev,
-                    microsoft: { ...prev.microsoft, clientId: event.target.value },
-                  }))
-                }
-              />
-            </label>
-
-            <label className="block text-sm">
-              <span className="mb-1 block">Client Secret</span>
-              <input
-                type="password"
-                placeholder={formState.microsoft.hasClientSecret ? 'Stored (leave blank to keep current secret)' : ''}
-                className="w-full border border-gray-300 rounded-md px-3 py-2"
-                value={formState.microsoft.clientSecret}
-                onChange={(event) =>
-                  setFormState((prev) => ({
-                    ...prev,
-                    microsoft: { ...prev.microsoft, clientSecret: event.target.value },
-                  }))
-                }
-              />
-            </label>
-
-            <label className="block text-sm">
-              <span className="mb-1 block">Redirect URI</span>
-              <input
-                className="w-full border border-gray-300 rounded-md px-3 py-2"
-                value={formState.microsoft.redirectUri}
-                onChange={(event) =>
-                  setFormState((prev) => ({
-                    ...prev,
-                    microsoft: { ...prev.microsoft, redirectUri: event.target.value },
-                  }))
-                }
-              />
-            </label>
-
-            <label className="block text-sm">
-              <span className="mb-1 block">Scopes</span>
-              <input
-                className="w-full border border-gray-300 rounded-md px-3 py-2"
-                value={formState.microsoft.scope}
-                onChange={(event) =>
-                  setFormState((prev) => ({
-                    ...prev,
-                    microsoft: { ...prev.microsoft, scope: event.target.value },
-                  }))
-                }
-              />
-            </label>
-
-            <label className="inline-flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
-                checked={formState.microsoft.isActive}
-                onChange={(event) =>
-                  setFormState((prev) => ({
-                    ...prev,
-                    microsoft: { ...prev.microsoft, isActive: event.target.checked },
-                  }))
-                }
-              />
-              <span>Enable Microsoft SSO</span>
-            </label>
-          </article>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={saveConfig}
-            disabled={saving}
-            className="px-4 py-2 rounded bg-plrei-navy text-white disabled:opacity-50"
-          >
-            {saving ? 'Saving...' : 'Save Configuration'}
-          </button>
-          {success && <span className="text-sm text-green-700">{success}</span>}
-          {error && <span className="text-sm text-red-700">{error}</span>}
-        </div>
+        {providers.length === 0 ? (
+          <p className="text-sm text-gray-500">No providers configured yet.</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-gray-200 text-left text-gray-500 text-xs uppercase tracking-wide">
+                  <th className="py-2 pr-4">Key</th>
+                  <th className="py-2 pr-4">Type</th>
+                  <th className="py-2 pr-4">Display Name</th>
+                  <th className="py-2 pr-4">Tenant ID</th>
+                  <th className="py-2 pr-4">Status</th>
+                  <th className="py-2 pr-4">Callback URL</th>
+                  <th className="py-2" />
+                </tr>
+              </thead>
+              <tbody>
+                {providers.map((p) => (
+                  <tr key={p.providerKey} className="border-b border-gray-100 align-top">
+                    <td className="py-2 pr-4 font-mono text-xs">{p.providerKey}</td>
+                    <td className="py-2 pr-4 capitalize">{p.type}</td>
+                    <td className="py-2 pr-4">{p.displayName}</td>
+                    <td className="py-2 pr-4 font-mono text-xs text-gray-500">{p.tenantId || '—'}</td>
+                    <td className="py-2 pr-4"><Badge active={p.isActive} /></td>
+                    <td className="py-2 pr-4 font-mono text-xs text-gray-400 break-all">{callbackUrl(p.providerKey)}</td>
+                    <td className="py-2 whitespace-nowrap">
+                      <button
+                        onClick={() => { setEditingProvider(p); setAddingProvider(false); }}
+                        className="text-plrei-navy text-xs mr-3 hover:underline"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => setDeleteConfirm({ type: 'provider', id: p.providerKey, label: p.providerKey })}
+                        className="text-red-500 text-xs hover:underline"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </section>
 
+      {/* ── Domain Mappings ── */}
+      <section className="rounded-xl border border-gray-200 bg-white p-6 space-y-5">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h2 className="text-xl font-semibold">Domain Mappings</h2>
+            <p className="text-sm text-gray-500 mt-1">
+              Map email domains to the SSO provider users on that domain should authenticate against.
+              When "Enforce SSO" is on, password login is blocked for that domain.
+            </p>
+          </div>
+          {!addingMapping && !editingMapping && (
+            <button
+              onClick={() => setAddingMapping(true)}
+              className="shrink-0 px-4 py-2 rounded bg-plrei-navy text-white text-sm"
+            >
+              + Add Mapping
+            </button>
+          )}
+        </div>
+
+        {addingMapping && (
+          <MappingForm
+            isNew
+            providerKeys={providerKeys}
+            onSave={() => { setAddingMapping(false); void loadAll(); }}
+            onCancel={() => setAddingMapping(false)}
+          />
+        )}
+
+        {editingMapping && (
+          <MappingForm
+            initial={editingMapping}
+            isNew={false}
+            providerKeys={providerKeys}
+            onSave={() => { setEditingMapping(null); void loadAll(); }}
+            onCancel={() => setEditingMapping(null)}
+          />
+        )}
+
+        {mappings.length === 0 ? (
+          <p className="text-sm text-gray-500">No domain mappings configured yet.</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-gray-200 text-left text-gray-500 text-xs uppercase tracking-wide">
+                  <th className="py-2 pr-4">Domain</th>
+                  <th className="py-2 pr-4">Provider Key</th>
+                  <th className="py-2 pr-4">Display Name</th>
+                  <th className="py-2 pr-4">Enforce SSO</th>
+                  <th className="py-2 pr-4">Status</th>
+                  <th className="py-2" />
+                </tr>
+              </thead>
+              <tbody>
+                {mappings.map((m) => (
+                  <tr key={m.id} className="border-b border-gray-100">
+                    <td className="py-2 pr-4 font-mono text-xs">{m.domain}</td>
+                    <td className="py-2 pr-4 font-mono text-xs">{m.providerKey}</td>
+                    <td className="py-2 pr-4 text-gray-600">{m.displayName ?? '—'}</td>
+                    <td className="py-2 pr-4">{m.enforceSso ? 'Yes' : 'No'}</td>
+                    <td className="py-2 pr-4"><Badge active={m.isActive} /></td>
+                    <td className="py-2 whitespace-nowrap">
+                      <button
+                        onClick={() => { setEditingMapping(m); setAddingMapping(false); }}
+                        className="text-plrei-navy text-xs mr-3 hover:underline"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => setDeleteConfirm({ type: 'mapping', id: m.id, label: m.domain })}
+                        className="text-red-500 text-xs hover:underline"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
+
+      {/* ── User List ── */}
       <section className="rounded-xl border border-gray-200 bg-white p-6">
-        <h2 className="text-xl font-semibold mb-4">User List</h2>
+        <h2 className="text-xl font-semibold mb-4">Users</h2>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-200 text-left">
+              <tr className="border-b border-gray-200 text-left text-gray-500 text-xs uppercase tracking-wide">
                 <th className="py-2 pr-4">Email</th>
                 <th className="py-2 pr-4">Role</th>
                 <th className="py-2 pr-4">Last Login</th>
@@ -406,12 +688,12 @@ export default function AdminSsoPortal() {
               </tr>
             </thead>
             <tbody>
-              {users.map((user) => (
-                <tr key={user.id} className="border-b border-gray-100">
-                  <td className="py-2 pr-4">{user.email}</td>
-                  <td className="py-2 pr-4">{user.role}</td>
-                  <td className="py-2 pr-4">{formatLastLogin(user.lastLoginAt)}</td>
-                  <td className="py-2 pr-4">{user.status}</td>
+              {users.map((u) => (
+                <tr key={u.id} className="border-b border-gray-100">
+                  <td className="py-2 pr-4">{u.email}</td>
+                  <td className="py-2 pr-4">{u.role}</td>
+                  <td className="py-2 pr-4">{formatDate(u.lastLoginAt)}</td>
+                  <td className="py-2 pr-4">{u.status}</td>
                 </tr>
               ))}
             </tbody>
