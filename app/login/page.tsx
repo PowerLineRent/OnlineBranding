@@ -11,6 +11,8 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [mode, setMode] = useState<'email' | 'password'>('email');
   const [providerId, setProviderId] = useState<string | null>(null);
+  const [logoSrc, setLogoSrc] = useState('/logos/plrei-mark.svg');
+  const [hideLogo, setHideLogo] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -124,32 +126,57 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
-      <div className="max-w-md w-full bg-white border border-gray-200 rounded-xl p-8 space-y-4">
-        <div className="pb-3 border-b border-gray-100">
-          <div className="flex items-center gap-3 mb-2">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logos/plrei-mark.svg" alt="PLREI logo" className="h-8 w-8 object-contain" />
-            <h1 className="text-2xl font-semibold">PLREI Sign In</h1>
+    <main className="min-h-screen bg-[#f3f4f6] flex items-center justify-center p-6">
+      <div className="w-full max-w-md">
+        <div className="mb-8 flex flex-col items-center text-center">
+          <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-600 text-white shadow-sm">
+            <svg aria-hidden="true" viewBox="0 0 24 24" className="h-6 w-6 fill-none stroke-current" strokeWidth="2">
+              <rect x="4" y="10" width="16" height="10" rx="2" />
+              <path d="M8 10V7a4 4 0 018 0v3" />
+            </svg>
           </div>
-          <p className="text-sm text-gray-600">Power Line Rent-E-Quip, Inc. account access</p>
+          <h1 className="text-4xl font-semibold tracking-tight text-slate-900">Access Portal</h1>
+          <p className="mt-2 text-lg text-slate-600">Sign in to your account</p>
+          {!hideLogo && (
+            <div className="mt-4 flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={logoSrc}
+                alt="PLREI logo"
+                className="h-5 w-5 object-contain"
+                onError={() => {
+                  if (logoSrc !== '/logos/plrei-mark.png') {
+                    setLogoSrc('/logos/plrei-mark.png');
+                    return;
+                  }
+                  setHideLogo(true);
+                }}
+              />
+              <span className="text-xs font-medium tracking-wide text-slate-700">Power Line Rent-E-Quip, Inc.</span>
+            </div>
+          )}
         </div>
 
+        <div className="space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
         {mode === 'email' && (
           <form className="space-y-4" onSubmit={onEmailSubmit}>
             <label className="block">
-              <span className="block mb-1">Email</span>
+              <span className="mb-2 block text-xl font-medium text-slate-800">Email</span>
               <input
-                className="w-full border border-gray-300 rounded-md px-3 py-2"
+                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-lg text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
                 type="email"
                 name="email"
                 autoComplete="email"
+                placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />
             </label>
-            <button className="px-4 py-2 rounded bg-plrei-navy text-white disabled:opacity-50" disabled={submitting}>
+            <button
+              className="w-full rounded-xl bg-blue-600 px-4 py-3 text-lg font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+              disabled={submitting}
+            >
               {submitting ? 'Checking...' : 'Continue'}
             </button>
           </form>
@@ -158,18 +185,24 @@ export default function LoginPage() {
         {mode === 'password' && (
           <form className="space-y-4" onSubmit={onPasswordSubmit}>
             <label className="block">
-              <span className="block mb-1">Email</span>
-              <input className="w-full border border-gray-300 rounded-md px-3 py-2 bg-gray-50" type="email" value={email} readOnly />
+              <span className="mb-2 block text-xl font-medium text-slate-800">Email</span>
+              <input
+                className="w-full rounded-xl border border-slate-300 bg-slate-100 px-4 py-3 text-lg text-slate-700"
+                type="email"
+                value={email}
+                readOnly
+              />
             </label>
             <label className="block">
-              <span className="block mb-1">Password</span>
+              <span className="mb-2 block text-xl font-medium text-slate-800">Password</span>
               <div className="relative">
                 <input
                   ref={passwordInputRef}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 pr-24"
+                  className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 pr-16 text-lg text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
                   type={showPassword ? 'text' : 'password'}
                   name="password"
                   autoComplete="current-password"
+                  placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -177,18 +210,43 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword((current) => !current)}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 px-2 py-1 text-xs rounded border border-gray-300 bg-white"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1.5 text-slate-500 transition hover:bg-slate-100 hover:text-slate-700"
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
-                  {showPassword ? 'Hide' : 'Show'}
+                  <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5 fill-none stroke-current" strokeWidth="2">
+                    {showPassword ? (
+                      <>
+                        <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" />
+                        <circle cx="12" cy="12" r="3" />
+                      </>
+                    ) : (
+                      <>
+                        <path d="M3 3l18 18" />
+                        <path d="M10.6 10.6a2 2 0 102.8 2.8" />
+                        <path d="M9.9 5.2A10.7 10.7 0 0112 5c6.5 0 10 7 10 7a17.8 17.8 0 01-3.3 4.2" />
+                        <path d="M6.2 6.2A17.8 17.8 0 002 12s3.5 7 10 7a10.7 10.7 0 004.2-.8" />
+                      </>
+                    )}
+                  </svg>
                 </button>
               </div>
             </label>
-            <div className="flex items-center gap-3">
-              <button type="button" onClick={goBackToEmailStep} className="px-4 py-2 rounded border border-gray-300" disabled={submitting}>
+            <div className="flex items-center justify-end">
+              <span className="text-sm text-blue-600">Forgot password?</span>
+            </div>
+            <div className="flex items-center gap-3 pt-1">
+              <button
+                type="button"
+                onClick={goBackToEmailStep}
+                className="rounded-xl border border-slate-300 px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60"
+                disabled={submitting}
+              >
                 Back
               </button>
-              <button className="px-4 py-2 rounded bg-plrei-navy text-white disabled:opacity-50" disabled={submitting}>
+              <button
+                className="flex-1 rounded-xl bg-blue-600 px-4 py-3 text-lg font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+                disabled={submitting}
+              >
                 {submitting ? 'Signing In...' : 'Sign In'}
               </button>
             </div>
@@ -196,12 +254,13 @@ export default function LoginPage() {
         )}
 
         {providerId && !submitting && (
-          <button onClick={retrySso} className="px-4 py-2 rounded border border-plrei-navy">
+          <button onClick={retrySso} className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100">
             Retry SSO Redirect
           </button>
         )}
 
-        {error && <p className="text-red-700">{error}</p>}
+        {error && <p className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
+        </div>
       </div>
     </main>
   );
