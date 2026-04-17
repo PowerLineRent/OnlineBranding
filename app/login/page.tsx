@@ -1,17 +1,45 @@
 'use client';
 
-import { FormEvent, useState } from 'react';
+import { FormEvent, useEffect, useRef, useState } from 'react';
 import { signIn } from 'next-auth/react';
 
 type DiscoverResponse = { mode: 'password' } | { mode: 'sso'; providerId: string };
+type CredentialStatusResponse = { accountExists: boolean; error?: string };
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [mode, setMode] = useState<'email' | 'password'>('email');
   const [providerId, setProviderId] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const passwordInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (mode === 'password') {
+      passwordInputRef.current?.focus();
+    }
+  }, [mode]);
+
+  async function resolveCredentialErrorMessage(): Promise<string> {
+    try {
+      // UX requirement: differentiate "account not found" from bad password
+      // without changing credentials sign-in semantics.
+      const response = await fetch('/api/auth/credentials-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      const payload = (await response.json()) as CredentialStatusResponse;
+      if (response.ok) {
+        return payload.accountExists ? 'Incorrect password.' : 'Account not found.';
+      }
+    } catch {
+      // Fallback below
+    }
+    return 'Invalid email or password.';
+  }
 
   async function onEmailSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -70,7 +98,7 @@ export default function LoginPage() {
       return;
     }
 
-    setError('Invalid email or password.');
+    setError(await resolveCredentialErrorMessage());
     setSubmitting(false);
   }
 
@@ -88,10 +116,25 @@ export default function LoginPage() {
     }
   }
 
+  function goBackToEmailStep() {
+    setMode('email');
+    setPassword('');
+    setShowPassword(false);
+    setError('');
+  }
+
   return (
     <main className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
       <div className="max-w-md w-full bg-white border border-gray-200 rounded-xl p-8 space-y-4">
-        <h1 className="text-2xl font-semibold">Sign In</h1>
+        <div className="pb-3 border-b border-gray-100">
+          <div className="flex items-center gap-3 mb-2">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logos/plrei-mark.svg" alt="PLREI logo" className="h-8 w-8 object-contain" />
+            <h1 className="text-2xl font-semibold">PLREI Sign In</h1>
+          </div>
+          <p className="text-sm text-gray-600">Power Line Rent-E-Quip, Inc. account access</p>
+        </div>
+
         {mode === 'email' && (
           <form className="space-y-4" onSubmit={onEmailSubmit}>
             <label className="block">
@@ -99,6 +142,8 @@ export default function LoginPage() {
               <input
                 className="w-full border border-gray-300 rounded-md px-3 py-2"
                 type="email"
+                name="email"
+                autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -118,17 +163,35 @@ export default function LoginPage() {
             </label>
             <label className="block">
               <span className="block mb-1">Password</span>
-              <input
-                className="w-full border border-gray-300 rounded-md px-3 py-2"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
+              <div className="relative">
+                <input
+                  ref={passwordInputRef}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 pr-24"
+                  type={showPassword ? 'text' : 'password'}
+                  name="password"
+                  autoComplete="current-password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((current) => !current)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 px-2 py-1 text-xs rounded border border-gray-300 bg-white"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? 'Hide' : 'Show'}
+                </button>
+              </div>
             </label>
-            <button className="px-4 py-2 rounded bg-plrei-navy text-white disabled:opacity-50" disabled={submitting}>
-              {submitting ? 'Signing In...' : 'Sign In'}
-            </button>
+            <div className="flex items-center gap-3">
+              <button type="button" onClick={goBackToEmailStep} className="px-4 py-2 rounded border border-gray-300" disabled={submitting}>
+                Back
+              </button>
+              <button className="px-4 py-2 rounded bg-plrei-navy text-white disabled:opacity-50" disabled={submitting}>
+                {submitting ? 'Signing In...' : 'Sign In'}
+              </button>
+            </div>
           </form>
         )}
 
