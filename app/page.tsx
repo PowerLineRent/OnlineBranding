@@ -135,31 +135,6 @@ const AUTHORIZED_LOGO_SECTIONS: LogoSection[] = [
     ],
   },
   {
-    name: 'Crest Lockup',
-    context: 'Formal crest-inclusive lockup for official or ceremonial materials.',
-    guidance: 'Use on documents and assets that require the crest treatment.',
-    variants: [
-      {
-        name: 'With phone and web',
-        preview: '/logos/authorized/PLREI Lightning Phone Number and Website with Crest.svg',
-        files: [
-          '/logos/authorized/PLREI Lightning Phone Number and Website with Crest.svg',
-          '/logos/authorized/PLREI Lightning Phone Number and Website with Crest.png',
-          '/logos/authorized/PLREI Lightning Phone Number and Website with Crest.jpg',
-        ],
-      },
-      {
-        name: 'Without phone and web',
-        preview: '/logos/authorized/PLREI Lightning with Crest.svg',
-        files: [
-          '/logos/authorized/PLREI Lightning with Crest.svg',
-          '/logos/authorized/PLREI Lightning with Crest.png',
-          '/logos/authorized/PLREI Lightning with Crest.jpg',
-        ],
-      },
-    ],
-  },
-  {
     name: 'Full Lockup with Phone & Web',
     context: 'Operational lockup including contact details for external/public contexts.',
     guidance: 'Use on vehicles, signage, and collateral where direct contact details are required.',
@@ -198,6 +173,31 @@ const AUTHORIZED_LOGO_SECTIONS: LogoSection[] = [
           '/logos/authorized/PLREI Lightning Phone Number and Website (Blue) without Glow.svg',
           '/logos/authorized/PLREI Lightning Phone Number and Website (Blue) without Glow.png',
           '/logos/authorized/PLREI Lightning Phone Number and Website (Blue) without Glow.jpg',
+        ],
+      },
+    ],
+  },
+  {
+    name: 'Crest Lockup',
+    context: 'Formal crest-inclusive lockup for official or ceremonial materials.',
+    guidance: 'Use on documents and assets that require the crest treatment.',
+    variants: [
+      {
+        name: 'With phone and web',
+        preview: '/logos/authorized/PLREI Lightning Phone Number and Website with Crest.svg',
+        files: [
+          '/logos/authorized/PLREI Lightning Phone Number and Website with Crest.svg',
+          '/logos/authorized/PLREI Lightning Phone Number and Website with Crest.png',
+          '/logos/authorized/PLREI Lightning Phone Number and Website with Crest.jpg',
+        ],
+      },
+      {
+        name: 'Without phone and web',
+        preview: '/logos/authorized/PLREI Lightning with Crest.svg',
+        files: [
+          '/logos/authorized/PLREI Lightning with Crest.svg',
+          '/logos/authorized/PLREI Lightning with Crest.png',
+          '/logos/authorized/PLREI Lightning with Crest.jpg',
         ],
       },
     ],
