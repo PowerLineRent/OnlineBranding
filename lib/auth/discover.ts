@@ -38,9 +38,28 @@ export async function discoverAuthMode(rawEmail: string): Promise<DiscoverResult
     return { mode: 'password' };
   }
 
-  const mapping = await prisma.ssoDomainMapping.findUnique({
-    where: { domain },
-  });
+  let mapping: Awaited<ReturnType<typeof prisma.ssoDomainMapping.findUnique>> = null;
+  try {
+    mapping = await prisma.ssoDomainMapping.findUnique({
+      where: { domain },
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    const missingMappingTable =
+      message.includes('SsoDomainMapping') ||
+      message.includes('does not exist') ||
+      message.includes('relation') ||
+      message.includes('P2021') ||
+      message.includes('P2022');
+
+    if (missingMappingTable) {
+      console.warn('[auth][discover] SsoDomainMapping unavailable; defaulting to password mode.', {
+        domain,
+      });
+      return { mode: 'password' };
+    }
+    throw error;
+  }
 
   return resolveDiscoverMode({
     email,
