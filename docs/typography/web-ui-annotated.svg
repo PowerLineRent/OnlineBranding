@@ -1,0 +1,41 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720">
+  <rect width="1200" height="720" fill="#f7f8fb"/>
+  <text x="48" y="56" font-family="Arial, sans-serif" font-size="30" font-weight="700" fill="#000080">Web &amp; Digital UI Typography (Annotated)</text>
+
+  <rect x="48" y="92" width="730" height="500" rx="14" fill="#ffffff" stroke="#d9deeb"/>
+  <text x="72" y="136" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#0f172a">Approved Font Stack</text>
+  <text x="72" y="168" font-family="Consolas, monospace" font-size="18" fill="#1f2937">font-family: Arial, sans-serif;</text>
+
+  <rect x="72" y="200" width="670" height="110" rx="10" fill="#000080"/>
+  <text x="96" y="245" font-family="Arial, sans-serif" font-size="28" font-weight="700" fill="#ffffff">Brand Guidelines</text>
+  <text x="96" y="278" font-family="Arial, sans-serif" font-size="18" fill="#dbeafe">Official standards for logo usage, color, and typography.</text>
+
+  <rect x="72" y="334" width="670" height="118" rx="10" fill="#ffffff" stroke="#d1d5db"/>
+  <text x="92" y="368" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#111827">Primary CTA</text>
+  <text x="92" y="396" font-family="Arial, sans-serif" font-size="16" fill="#374151">Arial keeps UI controls readable and neutral across browsers.</text>
+  <rect x="520" y="355" width="190" height="56" rx="8" fill="#F5C518"/>
+  <text x="566" y="390" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#000080">Open Tool</text>
+
+  <rect x="72" y="470" width="300" height="92" rx="10" fill="#ecfdf5" stroke="#16a34a"/>
+  <text x="92" y="505" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#166534">DO</text>
+  <text x="92" y="534" font-family="Arial, sans-serif" font-size="16" fill="#166534">Use Arial for digital UI text.</text>
+
+  <rect x="392" y="470" width="340" height="92" rx="10" fill="#fef2f2" stroke="#dc2626"/>
+  <text x="412" y="505" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#991b1b">DON'T</text>
+  <text x="412" y="534" font-family="Arial, sans-serif" font-size="16" fill="#991b1b">Use decorative/novelty UI fonts.</text>
+
+  <line x1="860" y1="236" x2="760" y2="236" stroke="#000080" stroke-width="2"/>
+  <text x="875" y="232" font-family="Arial, sans-serif" font-size="16" fill="#000080">Annotation A:</text>
+  <text x="875" y="254" font-family="Arial, sans-serif" font-size="15" fill="#1f2937">Arial is the approved</text>
+  <text x="875" y="274" font-family="Arial, sans-serif" font-size="15" fill="#1f2937">UI typography baseline.</text>
+
+  <line x1="860" y1="390" x2="760" y2="390" stroke="#000080" stroke-width="2"/>
+  <text x="875" y="386" font-family="Arial, sans-serif" font-size="16" fill="#000080">Annotation B:</text>
+  <text x="875" y="408" font-family="Arial, sans-serif" font-size="15" fill="#1f2937">Buttons/forms must keep</text>
+  <text x="875" y="428" font-family="Arial, sans-serif" font-size="15" fill="#1f2937">functional readability.</text>
+
+  <line x1="860" y1="515" x2="760" y2="515" stroke="#000080" stroke-width="2"/>
+  <text x="875" y="511" font-family="Arial, sans-serif" font-size="16" fill="#000080">Annotation C:</text>
+  <text x="875" y="533" font-family="Arial, sans-serif" font-size="15" fill="#1f2937">Novelty fonts break</text>
+  <text x="875" y="553" font-family="Arial, sans-serif" font-size="15" fill="#1f2937">consistency and trust.</text>
+</svg>

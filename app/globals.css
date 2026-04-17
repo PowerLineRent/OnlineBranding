@@ -11,6 +11,22 @@ body {
   color: #333;
 }
 
+.preview-box {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  padding: 24px;
+}
+
+.preview-label {
+  margin-bottom: 16px;
+}
+
+.signature-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 /* Section anchor offset for sticky header */
 [id] {
   scroll-margin-top: 64px;

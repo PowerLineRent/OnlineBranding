@@ -1,0 +1,30 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720">
+  <rect width="1200" height="720" fill="#f7f8fb"/>
+  <text x="48" y="56" font-family="Arial, sans-serif" font-size="30" font-weight="700" fill="#000080">PLREI Wordmark Rule (Annotated)</text>
+
+  <rect x="48" y="92" width="730" height="500" rx="14" fill="#ffffff" stroke="#d9deeb"/>
+  <text x="72" y="136" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#0f172a">Vector-Only Artwork Requirement</text>
+
+  <rect x="72" y="172" width="670" height="220" rx="10" fill="#ffffff" stroke="#cbd5e1"/>
+  <text x="104" y="238" font-family="Arial, sans-serif" font-size="16" fill="#6b7280">Approved Asset Preview</text>
+  <text x="104" y="290" font-family="Arial, sans-serif" font-size="54" font-weight="700" letter-spacing="2" fill="#000080">PLREI</text>
+  <text x="104" y="324" font-family="Arial, sans-serif" font-size="16" fill="#6b7280">Representing approved supplied artwork file (vector export)</text>
+  <text x="104" y="350" font-family="Arial, sans-serif" font-size="14" fill="#9ca3af">Do not typeset this from a font in production assets.</text>
+
+  <rect x="72" y="412" width="670" height="60" rx="8" fill="#ecfdf5" stroke="#16a34a"/>
+  <text x="94" y="449" font-family="Arial, sans-serif" font-size="18" fill="#166534">DO: Use only approved PLREI wordmark artwork files (SVG/PNG exports from source assets).</text>
+
+  <rect x="72" y="486" width="670" height="76" rx="8" fill="#fef2f2" stroke="#dc2626"/>
+  <text x="94" y="519" font-family="Arial, sans-serif" font-size="18" fill="#991b1b">DON'T: Recreate "PLREI" wordmark text from any font or manual tracing.</text>
+  <text x="94" y="545" font-family="Arial, sans-serif" font-size="16" fill="#991b1b">Typography rules do not override this artwork rule.</text>
+
+  <line x1="860" y1="252" x2="760" y2="252" stroke="#000080" stroke-width="2"/>
+  <text x="875" y="248" font-family="Arial, sans-serif" font-size="16" fill="#000080">Annotation A:</text>
+  <text x="875" y="270" font-family="Arial, sans-serif" font-size="15" fill="#1f2937">Wordmark is fixed vector art,</text>
+  <text x="875" y="290" font-family="Arial, sans-serif" font-size="15" fill="#1f2937">not editable text.</text>
+
+  <line x1="860" y1="438" x2="760" y2="438" stroke="#000080" stroke-width="2"/>
+  <text x="875" y="434" font-family="Arial, sans-serif" font-size="16" fill="#000080">Annotation B:</text>
+  <text x="875" y="456" font-family="Arial, sans-serif" font-size="15" fill="#1f2937">Brand integrity depends on</text>
+  <text x="875" y="476" font-family="Arial, sans-serif" font-size="15" fill="#1f2937">unaltered official artwork.</text>
+</svg>

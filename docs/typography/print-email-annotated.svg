@@ -1,0 +1,35 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720">
+  <rect width="1200" height="720" fill="#f7f8fb"/>
+  <text x="48" y="56" font-family="Arial, sans-serif" font-size="30" font-weight="700" fill="#000080">Print &amp; Email Typography (Annotated)</text>
+
+  <rect x="48" y="92" width="730" height="500" rx="14" fill="#ffffff" stroke="#d9deeb"/>
+  <text x="72" y="136" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#0f172a">Approved Font Stack</text>
+  <text x="72" y="168" font-family="Consolas, monospace" font-size="18" fill="#1f2937">font-family: Aptos, Calibri, sans-serif;</text>
+
+  <text x="72" y="232" font-family="Aptos, Calibri, sans-serif" font-size="34" fill="#111827">Power Line Rent-E-Quip, Inc.</text>
+  <text x="72" y="270" font-family="Aptos, Calibri, sans-serif" font-size="21" fill="#111827">Professional service you can trust across utility and infrastructure projects.</text>
+  <text x="72" y="318" font-family="Calibri, Arial, sans-serif" font-size="18" fill="#374151">Fallback preview if Aptos is unavailable: same layout remains clean and readable.</text>
+
+  <rect x="72" y="360" width="300" height="92" rx="10" fill="#ecfdf5" stroke="#16a34a"/>
+  <text x="92" y="395" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#166534">DO</text>
+  <text x="92" y="424" font-family="Arial, sans-serif" font-size="16" fill="#166534">Use Aptos, then Calibri fallback.</text>
+
+  <rect x="392" y="360" width="340" height="92" rx="10" fill="#fef2f2" stroke="#dc2626"/>
+  <text x="412" y="395" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#991b1b">DON'T</text>
+  <text x="412" y="424" font-family="Arial, sans-serif" font-size="16" fill="#991b1b">Swap to unapproved fonts.</text>
+
+  <line x1="860" y1="210" x2="760" y2="210" stroke="#000080" stroke-width="2"/>
+  <text x="875" y="206" font-family="Arial, sans-serif" font-size="16" fill="#000080">Annotation A:</text>
+  <text x="875" y="228" font-family="Arial, sans-serif" font-size="15" fill="#1f2937">Use Aptos as primary in</text>
+  <text x="875" y="248" font-family="Arial, sans-serif" font-size="15" fill="#1f2937">print documents and email.</text>
+
+  <line x1="860" y1="316" x2="760" y2="316" stroke="#000080" stroke-width="2"/>
+  <text x="875" y="312" font-family="Arial, sans-serif" font-size="16" fill="#000080">Annotation B:</text>
+  <text x="875" y="334" font-family="Arial, sans-serif" font-size="15" fill="#1f2937">Calibri fallback protects</text>
+  <text x="875" y="354" font-family="Arial, sans-serif" font-size="15" fill="#1f2937">cross-platform consistency.</text>
+
+  <line x1="860" y1="412" x2="760" y2="412" stroke="#000080" stroke-width="2"/>
+  <text x="875" y="408" font-family="Arial, sans-serif" font-size="16" fill="#000080">Annotation C:</text>
+  <text x="875" y="430" font-family="Arial, sans-serif" font-size="15" fill="#1f2937">Do/Don't callouts are</text>
+  <text x="875" y="450" font-family="Arial, sans-serif" font-size="15" fill="#1f2937">explicit for non-design teams.</text>
+</svg>

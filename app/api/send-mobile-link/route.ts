@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { resolveEmailSignatureAssetUrl } from '@/lib/emailSignatureAssetUrls';
+import { decodeSignaturePayload, createSignatureHash } from '@/lib/signature-validation';
 
 export async function POST(req: NextRequest) {
   const resendApiKey = process.env.RESEND_API_KEY;
@@ -19,7 +21,7 @@ export async function POST(req: NextRequest) {
   }
 
   const to = String(body.to ?? '').trim();
-  const link = String(body.link ?? '').trim();
+  let link = String(body.link ?? '').trim();
   const name = String(body.signature?.name ?? 'PLREI user').trim();
 
   if (!to || !to.includes('@')) {
@@ -30,6 +32,24 @@ export async function POST(req: NextRequest) {
   }
 
   try {
+    const url = new URL(link);
+    const s = url.searchParams.get('s');
+    const h = url.searchParams.get('h');
+    const secretKey = process.env.SIGNATURE_SECRET_KEY;
+    if (s && !h && secretKey) {
+      const payloadJson = decodeSignaturePayload(s);
+      url.searchParams.set('h', createSignatureHash(payloadJson, secretKey));
+      link = url.toString();
+    }
+  } catch {
+    // Keep original link if URL parsing fails.
+  }
+
+  try {
+    // Use centralized resolver so email template generation follows the same
+    // new-path-first, legacy-fallback behavior as frontend rendering.
+    const logoUrl = await resolveEmailSignatureAssetUrl('EmailSignatureLogo-V3.png');
+
     const resendResponse = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
@@ -42,6 +62,7 @@ export async function POST(req: NextRequest) {
         subject: 'Your PLREI Email Signature Link',
         html: `
           <p>Hi ${name},</p>
+          <p><img src="${logoUrl}" alt="PLREI logo" width="120" style="display:block;border:0;" /></p>
           <p>Open this link on your phone to access your customized PLREI email signature:</p>
           <p><a href="${link}">${link}</a></p>
           <p>If the link does not open directly, copy and paste it into your browser.</p>
