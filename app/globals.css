@@ -1,0 +1,77 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  color: #4A4A4B;
+}
+
+.preview-box {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  padding: 24px;
+}
+
+.preview-label {
+  margin-bottom: 16px;
+}
+
+.signature-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Section anchor offset for sticky header */
+[id] {
+  scroll-margin-top: 64px;
+}
+
+@layer components {
+  .section-label {
+    @apply text-xs font-bold uppercase tracking-widest mb-2 flex items-center gap-1.5;
+    color: #000080;
+  }
+
+  /* The section number gets a yellow dot accent */
+  .section-label::before {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 9999px;
+    background-color: #F5C518;
+    flex-shrink: 0;
+  }
+
+  .section-title {
+    @apply text-3xl font-bold mb-4;
+    color: #3F4042;
+  }
+
+  .section-body {
+    @apply text-base text-plrei-text-body leading-relaxed;
+  }
+
+  .card {
+    @apply bg-white border border-plrei-bg-border rounded-xl p-6;
+  }
+
+  /* Yellow-accented Do tag */
+  .do-tag {
+    @apply inline-block text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded mb-3;
+    background-color: #F5C518;
+    color: #000080;
+  }
+
+  .dont-tag {
+    @apply inline-block text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded mb-3;
+    background-color: #3F4042;
+    color: #F5C518;
+  }
+}
