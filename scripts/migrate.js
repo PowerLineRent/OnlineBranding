@@ -18,18 +18,21 @@ const directUrl =
   process.env.POSTGRES_DIRECT_URL ||
   '';
 
-if (!directUrl || directUrl === process.env.POSTGRES_PRISMA_URL) {
+const isPoolerUrl = directUrl.includes(':6543') || directUrl.includes('pooler.supabase.com');
+
+if (!directUrl || directUrl === process.env.POSTGRES_PRISMA_URL || isPoolerUrl) {
   console.warn(
-    '\n[migrate] WARNING: POSTGRES_URL_NON_POOLING is not set or points to the pooler.\n' +
+    '\n[migrate] WARNING: POSTGRES_URL_NON_POOLING is not set or points to the connection pooler.\n' +
     '[migrate] Skipping migrations — schema changes will NOT be applied until a direct connection is configured.\n' +
-    '[migrate] Set POSTGRES_URL_NON_POOLING in Vercel env vars (Supabase → Settings → Database → Direct connection).\n'
+    '[migrate] Set POSTGRES_URL_NON_POOLING in Vercel env vars using the direct connection string from\n' +
+    '[migrate] Supabase → Project Settings → Database → Connection string → URI (port 5432, not 6543).\n'
   );
   process.exit(0);
 }
 
-function run(cmd, { ignoreError = false } = {}) {
+function run(cmd, { ignoreError = false, timeout = 30_000 } = {}) {
   try {
-    execSync(cmd, { stdio: 'inherit', timeout: 30_000 });
+    execSync(cmd, { stdio: 'inherit', timeout });
     return true;
   } catch (err) {
     if (!ignoreError) throw err;
@@ -38,4 +41,4 @@ function run(cmd, { ignoreError = false } = {}) {
 }
 
 run('npx prisma migrate resolve --applied 20260416193956_init_auth', { ignoreError: true });
-run('npx prisma migrate deploy');
+run('npx prisma migrate deploy', { timeout: 60_000 });
