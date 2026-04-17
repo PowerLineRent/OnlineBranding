@@ -72,8 +72,8 @@ export default function SectionNav({ showOverview = true, userEmail, isAdmin = f
           className="flex items-center gap-3 hover:opacity-80 transition-opacity"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logos/plrei-mark.svg" alt="PLREI Mark" className="h-8 w-auto" />
-          <span className="hidden sm:block">Brand Guidelines</span>
+          <img src="/logos/plrei-mark-no-glow.svg" alt="PLREI Mark" className="h-12 w-auto" />
+          <span className="hidden sm:block text-xl font-bold" style={{ color: '#000080' }}>PLREI Brand Guidelines</span>
         </Link>
 
         <nav className="hidden md:flex items-center gap-1">
