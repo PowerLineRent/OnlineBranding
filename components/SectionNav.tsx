@@ -97,14 +97,6 @@ export default function SectionNav({ showOverview = true, userEmail, isAdmin = f
           >
             Signature Tool
           </a>
-          {isAdmin && (
-            <a
-              href="/admin/sso"
-              className="ml-2 px-4 py-1.5 rounded-md border border-gray-300 hover:bg-gray-50 transition-colors"
-            >
-              Administrative
-            </a>
-          )}
 
           {userEmail && (
             <div className="relative ml-3" ref={dropdownRef}>
@@ -183,11 +175,6 @@ export default function SectionNav({ showOverview = true, userEmail, isAdmin = f
           >
             Signature Tool
           </a>
-          {isAdmin && (
-            <a href="/admin/sso" className="block px-6 py-3 border-t border-plrei-bg-border">
-              Administrative
-            </a>
-          )}
           {userEmail && (
             <>
               <div className="px-6 py-2 border-t border-plrei-bg-border">
