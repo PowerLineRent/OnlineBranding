@@ -5,8 +5,8 @@ import { auth } from '@/lib/auth';
 import { isAdminSession } from '@/lib/auth/admin';
 
 export const metadata: Metadata = {
-  title: 'Branding Memory Summary',
-  description: 'AI-friendly PLREI branding memory summary for consistent and compliant output generation.',
+  title: 'AI Memory Guidance',
+  description: 'AI-friendly PLREI memory guidance for consistent and compliant output generation.',
 };
 
 export default async function BrandingMemoryPage() {
@@ -32,7 +32,7 @@ export default async function BrandingMemoryPage() {
             <span>Back To Home</span>
           </a>
           <h1 style={{ margin: 0, marginBottom: '12px', fontSize: '42px', fontWeight: 800, lineHeight: 1.08, color: '#F5C518' }}>
-            Branding Memory Summary
+            AI Memory Guidance
           </h1>
           <p style={{ margin: 0, color: '#E7ECFF', maxWidth: '860px', fontSize: '24px', lineHeight: 1.35 }}>
             AI-ready condensed guidelines for consistent brand-compliant implementation.
@@ -44,7 +44,7 @@ export default async function BrandingMemoryPage() {
       <main className="flex-1 border-b border-plrei-bg-border">
         <div className="max-w-5xl mx-auto px-6 py-14">
           <p className="section-label">05 - Applications</p>
-          <h2 className="section-title">Branding Memory</h2>
+          <h2 className="section-title">AI Memory Guidance</h2>
           <BrandingMemoryPanel />
         </div>
       </main>

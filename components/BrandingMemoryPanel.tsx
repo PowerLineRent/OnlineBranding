@@ -42,7 +42,7 @@ export default function BrandingMemoryPanel() {
         readOnly
         value={BRANDING_MEMORY_SUMMARY}
         className="w-full min-h-[560px] rounded-lg border border-gray-300 bg-gray-100 p-4 text-sm leading-relaxed text-gray-700"
-        aria-label="PLREI branding memory summary"
+        aria-label="PLREI AI memory guidance"
       />
     </div>
   );

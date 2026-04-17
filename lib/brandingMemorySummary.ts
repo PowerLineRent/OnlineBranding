@@ -47,7 +47,7 @@ COLOR SYSTEM (ONLY APPROVED COLORS)
 - Do not introduce unapproved brand colors for primary identity elements.
 
 TYPOGRAPHY STANDARDS
-- Digital UI: Arial, sans-serif.
+- Digital UI: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif.
 - Print + email body/copy: Aptos, Calibri, sans-serif.
 - Signage/label copy: "Microsoft Tai Le", "Microsoft New Tai Lue", sans-serif.
 - Do not use decorative/novelty fonts in UI.
@@ -82,4 +82,3 @@ AI EXECUTION CHECKLIST (APPLY BEFORE FINAL OUTPUT)
 6. Are any prohibited transforms/effects present on logo assets?
 7. If uncertain, default to conservative, compliance-safe choices.
 `;
-

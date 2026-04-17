@@ -112,7 +112,7 @@ function buildSignatureHtml(data: FormData, urls: typeof DEFAULT_ASSET_URLS): st
                                         </span>
                                     </p>
 
-                                    <table cellpadding="0" cellspacing="0" border="0" style="font-family: Arial; font-size: 14px; line-height: 1; border-collapse: collapse;">
+                                    <table cellpadding="0" cellspacing="0" border="0" style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 14px; line-height: 1; border-collapse: collapse;">
                                         <tbody>
                                             <tr id="sig-addr-row" style="height: ${hasBothAddr ? '36' : '26'}px;${!hasAddr ? ' display: none;' : ''}">
                                                 <td width="26" valign="top" style="width: 26px; vertical-align: top; padding-top: 4px;">

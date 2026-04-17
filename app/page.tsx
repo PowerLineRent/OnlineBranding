@@ -382,6 +382,13 @@ export default async function BrandPage() {
                 Colors
               </a>
               <a
+                href="#typography"
+                className="inline-flex items-center rounded border px-3 py-1.5 text-sm font-semibold transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#000080]"
+                style={{ borderColor: '#FFFFFF', color: '#FFFFFF' }}
+              >
+                Typography
+              </a>
+              <a
                 href="#iconography"
                 className="inline-flex items-center rounded border px-3 py-1.5 text-sm font-semibold transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#000080]"
                 style={{ borderColor: '#FFFFFF', color: '#FFFFFF' }}
@@ -400,7 +407,7 @@ export default async function BrandPage() {
                 className="inline-flex items-center rounded border px-3 py-1.5 text-sm font-semibold transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#000080]"
                 style={{ backgroundColor: '#F5C518', borderColor: '#F5C518', color: '#000080' }}
               >
-                AI Memory
+                AI Memory Guidance
               </a>
             </div>
           </div>
@@ -568,9 +575,75 @@ export default async function BrandPage() {
           </div>
         </section>
 
-        <section id="iconography" className="bg-plrei-bg-light border-b border-plrei-bg-border">
+        <section id="typography" className="bg-plrei-bg-light border-b border-plrei-bg-border">
           <div className="max-w-5xl mx-auto px-6 py-14">
-            <p className="section-label">04 - Iconography</p>
+            <p className="section-label">04 - Typography</p>
+            <h2 className="section-title">Use The Right Font For The Right Job</h2>
+            <p className="section-body mb-8">
+              Typography is context-based at PLREI. Use the font stack below based on output type so pages, signatures,
+              letterhead, and signage stay consistent and readable.
+            </p>
+
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-6">
+              <div className="card border-t-4" style={{ borderTopColor: '#000080' }}>
+                <div className="mb-2 font-bold" style={{ color: '#000080' }}>Web And App UI</div>
+                <p className="mb-2">Use in this branding portal, buttons, form fields, and tool interfaces.</p>
+                <p className="text-sm mb-3" style={{ color: '#4A4A4B' }}>Font stack: <code>"Segoe UI", Tahoma, Geneva, Verdana, sans-serif</code></p>
+                <div className="mb-3 rounded-lg border border-plrei-bg-border bg-white p-3" style={{ fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif' }}>
+                  <div className="text-base font-bold" style={{ color: '#000080' }}>Primary Action</div>
+                  <p className="text-sm mb-0" style={{ color: '#3F4042' }}>Use this stack for UI labels, controls, and helper text.</p>
+                </div>
+                <ul className="space-y-1.5 text-sm">
+                  <li className="flex gap-2"><span>+</span><span>Prioritize clean readability across browsers and Windows environments.</span></li>
+                  <li className="flex gap-2"><span>x</span><span>Do not use decorative or novelty UI fonts.</span></li>
+                </ul>
+              </div>
+              <div className="card border-t-4" style={{ borderTopColor: '#F5C518' }}>
+                <div className="mb-2 font-bold" style={{ color: '#000080' }}>Print And Email Copy</div>
+                <p className="mb-2">Use in letterhead documents, email body copy, and formal written communication.</p>
+                <p className="text-sm mb-3" style={{ color: '#4A4A4B' }}>Font stack: <code>Aptos, Calibri, sans-serif</code></p>
+                <div className="mb-3 rounded-lg border border-plrei-bg-border bg-white p-3" style={{ fontFamily: 'Aptos, Calibri, sans-serif' }}>
+                  <div className="text-base font-bold" style={{ color: '#000080' }}>Power Line Rent-E-Quip, Inc.</div>
+                  <p className="text-sm mb-0" style={{ color: '#3F4042' }}>Professional service support for utility and infrastructure projects.</p>
+                </div>
+                <ul className="space-y-1.5 text-sm">
+                  <li className="flex gap-2"><span>+</span><span>Use Aptos first, Calibri as the fallback.</span></li>
+                  <li className="flex gap-2"><span>x</span><span>Do not swap in unapproved document fonts.</span></li>
+                </ul>
+              </div>
+              <div className="card border-t-4" style={{ borderTopColor: '#3F4042' }}>
+                <div className="mb-2 font-bold" style={{ color: '#000080' }}>Signage And Labels</div>
+                <p className="mb-2">Use for operational tags, equipment labels, and signage-only copy.</p>
+                <p className="text-sm mb-3" style={{ color: '#4A4A4B' }}>
+                  Font stack: <code>"Microsoft Tai Le", "Microsoft New Tai Lue", sans-serif</code>
+                </p>
+                <div
+                  className="mb-3 rounded-lg border border-plrei-bg-border bg-white p-3"
+                  style={{ fontFamily: '"Microsoft Tai Le", "Microsoft New Tai Lue", sans-serif' }}
+                >
+                  <div className="text-base font-bold uppercase tracking-wide" style={{ color: '#000080' }}>PLREI EQUIPMENT TAG</div>
+                  <p className="text-sm mb-0 uppercase tracking-wide" style={{ color: '#3F4042' }}>AUTHORIZED SERVICE LABEL</p>
+                </div>
+                <ul className="space-y-1.5 text-sm">
+                  <li className="flex gap-2"><span>+</span><span>Keep signage typography distinct and operationally consistent.</span></li>
+                  <li className="flex gap-2"><span>x</span><span>Do not mix signage fonts with the print/email stack.</span></li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="card">
+              <div className="font-bold mb-2" style={{ color: '#000080' }}>Important Relationship To Logo Rules</div>
+              <p className="section-body">
+                Typography rules do not override logo rules. The PLREI wordmark is fixed vector artwork and must never be
+                recreated as live text in any font.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section id="iconography" className="border-b border-plrei-bg-border">
+          <div className="max-w-5xl mx-auto px-6 py-14">
+            <p className="section-label">05 - Iconography</p>
             <h2 className="section-title">Email Signature Icons</h2>
             <div
               className="rounded-xl border mb-8 p-5"
@@ -614,9 +687,9 @@ export default async function BrandPage() {
           </div>
         </section>
 
-        <section id="applications" className="border-b border-plrei-bg-border">
+        <section id="applications" className="bg-plrei-bg-light border-b border-plrei-bg-border">
           <div className="max-w-5xl mx-auto px-6 py-14">
-            <p className="section-label">05 - Applications</p>
+            <p className="section-label">06 - Applications</p>
             <h2 className="section-title">Operational Usage</h2>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
               <div className="card border-t-4" style={{ borderTopColor: '#F5C518' }}>
@@ -633,12 +706,12 @@ export default async function BrandPage() {
                 </p>
               </div>
               <div className="card border-t-4" style={{ borderTopColor: '#3F4042' }}>
-                <div className="mb-2">Branding Memory Summary</div>
+                <div className="mb-2">AI Memory Guidance</div>
                 <p className="mb-4">
                   Review a condensed, AI-friendly summary of the official guidelines and copy it for reuse in tools and prompts.
                 </p>
                 <a href="/branding-memory" className="inline-block px-4 py-2 rounded border" style={{ borderColor: '#000080' }}>
-                  Open Branding Memory
+                  Open AI Memory Guidance
                 </a>
               </div>
             </div>
