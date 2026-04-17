@@ -14,7 +14,10 @@ when decoded `?s` payload contains `hash` matching `SIGNATURE_BYPASS_HASH`.
 
 Configure these values in `.env`:
 
-- `DATABASE_URL`
+- `POSTGRES_PRISMA_URL` (or `DATABASE_URL` / `POSTGRES_URL` fallback)
+- `POSTGRES_URL_NON_POOLING` (for migrations/introspection)
+- `POSTGRES_SSLMODE` (optional explicit TLS mode)
+- `POSTGRES_SSL_INSECURE` (optional, `true` to allow self-signed chains)
 - `AUTH_SECRET`
 - `AUTH_URL`
 - `ADMIN_EMAIL`
