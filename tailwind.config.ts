@@ -12,8 +12,8 @@ const config: Config = {
         plrei: {
           navy: '#000080',
           yellow: '#F5C518',
-          'bg-light': '#FFFFFF',
-          'bg-border': '#3F4042',
+          'bg-light': '#EFF3FF',
+          'bg-border': '#B7C5EE',
           'text-body': '#4A4A4B',
         },
       },
