@@ -8,6 +8,16 @@ import {
   getLegacyEmailSignatureAssetUrl,
   getPreferredEmailSignatureAssetUrl,
   resolveEmailSignatureAssetUrls } from '@/lib/emailSignatureAssetUrls';
+import {
+  buildSignatureHtml,
+  DEFAULT_SIGNATURE_ASSET_URLS,
+  LOGO_FILE,
+  ADDRESS_ICON_FILE,
+  PHONE_ICON_FILE,
+  EMAIL_ICON_FILE,
+  LINK_ICON_FILE,
+  type SignatureFormData,
+} from '@/lib/emailSignatureTemplate';
 
 const APPROVED_COLOR_SYSTEM = [
   {
@@ -315,27 +325,49 @@ const ICONS = [
   {
     name: 'Address',
     fileName: getEmailSignatureIconFileName('address'),
-    slug: 'address' },
+    slug: 'address',
+    description: 'Use for physical mailing/location lines in signatures and contact blocks.' },
   {
     name: 'Phone',
     fileName: getEmailSignatureIconFileName('phone'),
-    slug: 'phone' },
+    slug: 'phone',
+    description: 'Use for office, mobile, and fax number rows in approved signature layouts.' },
   {
     name: 'Email',
     fileName: getEmailSignatureIconFileName('email'),
-    slug: 'email' },
+    slug: 'email',
+    description: 'Use for direct email address lines and mailto-linked contact entries.' },
   {
     name: 'Link',
     fileName: getEmailSignatureIconFileName('link'),
-    slug: 'link' },
+    slug: 'link',
+    description: 'Use for website links such as www.plrei.com in signature and profile contexts.' },
 ] as const;
+
+const HOMEPAGE_TIM_SIGNATURE_PREVIEW: SignatureFormData = {
+  name: 'Tim Kingery',
+  title: 'President',
+  office: '540-682-2126',
+  mobile: '540-815-3752',
+  fax: '540-345-4400',
+  email: 'timkingery@plrei.com',
+  addr1: '42 Noble Avenue, NE',
+  addr2: 'Roanoke, VA 24012',
+};
 
 export default async function BrandPage() {
   const currentYear = new Date().getFullYear();
   const [session, resolvedIconUrls] = await Promise.all([
     auth(),
-    resolveEmailSignatureAssetUrls(ICONS.map((icon) => icon.fileName)),
+    resolveEmailSignatureAssetUrls([LOGO_FILE, ...ICONS.map((icon) => icon.fileName)]),
   ]);
+  const signaturePreviewAssetUrls = {
+    logo: resolvedIconUrls[LOGO_FILE] ?? DEFAULT_SIGNATURE_ASSET_URLS.logo,
+    address: resolvedIconUrls[ADDRESS_ICON_FILE] ?? DEFAULT_SIGNATURE_ASSET_URLS.address,
+    phone: resolvedIconUrls[PHONE_ICON_FILE] ?? DEFAULT_SIGNATURE_ASSET_URLS.phone,
+    email: resolvedIconUrls[EMAIL_ICON_FILE] ?? DEFAULT_SIGNATURE_ASSET_URLS.email,
+    link: resolvedIconUrls[LINK_ICON_FILE] ?? DEFAULT_SIGNATURE_ASSET_URLS.link,
+  };
 
   return (
     <>
@@ -455,7 +487,7 @@ export default async function BrandPage() {
             <div className="space-y-6 mb-8">
               {AUTHORIZED_LOGO_SECTIONS.map((section) => (
                 <div key={section.name} className="card p-5">
-                  <h3 className="text-xl font-bold mb-1" style={{ color: '#000080' }}>{section.name}</h3>
+                  <h3 className="card-title-main mb-1">{section.name}</h3>
                   <p className="text-base mb-0.5 leading-snug" style={{ color: '#4A4A4B' }}>{section.context}</p>
                   <p className="text-base mb-4 leading-snug" style={{ color: '#4A4A4B' }}>{section.guidance}</p>
 
@@ -466,7 +498,7 @@ export default async function BrandPage() {
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img src={encodeURI(variant.preview)} alt={`PLREI ${section.name} ${variant.name}`} className="max-h-40 max-w-full object-contain" />
                         </div>
-                        <div className="font-bold text-base mb-1" style={{ color: '#000080' }}>{variant.name}</div>
+                        <div className="card-title-sub">{variant.name}</div>
                         {variant.context && <p className="text-xs mb-1 leading-snug" style={{ color: '#6B7280' }}>{variant.context}</p>}
                         {variant.guidance && <p className="text-xs leading-snug mb-4" style={{ color: '#6B7280' }}>{variant.guidance}</p>}
                         <div className="grid gap-2 mt-auto pt-3" style={{ gridTemplateColumns: `repeat(${variant.files.length}, 1fr)` }}>
@@ -518,7 +550,7 @@ export default async function BrandPage() {
             </div>
 
             <div className="card mt-8">
-              <div className="font-bold text-base mb-1" style={{ color: '#000080' }}>Letterhead Template</div>
+              <div className="card-title-main">Letterhead Template</div>
               <p className="mb-4" style={{ color: '#4A4A4B' }}>
                 Use this template for all formal correspondence. It preserves the correct brand layout, header scale, and spacing.
               </p>
@@ -555,7 +587,7 @@ export default async function BrandPage() {
 
         <section id="colors" className="border-b border-plrei-bg-border">
           <div className="max-w-5xl mx-auto px-6 py-14">
-            <p className="section-label">03 - Colors</p>
+            <p className="section-label text-sm">03 - Colors</p>
             <h2 className="section-title">Approved Color System</h2>
             <p className="section-body mb-8">
               These are the only approved colors for PLREI digital and brand materials. Use them consistently across all applications.
@@ -583,10 +615,13 @@ export default async function BrandPage() {
               Typography is context-based at PLREI. Use the font stack below based on output type so pages, signatures,
               letterhead, and signage stay consistent and readable.
             </p>
+            <p className="section-body mb-8">
+              Size and weight values below are recommended starting points for consistency, not strict locked specifications.
+            </p>
 
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-6">
               <div className="card border-t-4" style={{ borderTopColor: '#000080' }}>
-                <div className="mb-2 font-bold" style={{ color: '#000080' }}>Web And App UI</div>
+                <div className="card-title-main">Web And App UI</div>
                 <p className="mb-2">Use in this branding portal, buttons, form fields, and tool interfaces.</p>
                 <p className="text-sm mb-3" style={{ color: '#4A4A4B' }}>Font stack: <code>"Segoe UI", Tahoma, Geneva, Verdana, sans-serif</code></p>
                 <div className="mb-3 rounded-lg border border-plrei-bg-border bg-white p-3" style={{ fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif' }}>
@@ -599,7 +634,7 @@ export default async function BrandPage() {
                 </ul>
               </div>
               <div className="card border-t-4" style={{ borderTopColor: '#F5C518' }}>
-                <div className="mb-2 font-bold" style={{ color: '#000080' }}>Print And Email Copy</div>
+                <div className="card-title-main">Print And Email Copy</div>
                 <p className="mb-2">Use in letterhead documents, email body copy, and formal written communication.</p>
                 <p className="text-sm mb-3" style={{ color: '#4A4A4B' }}>Font stack: <code>Aptos, Calibri, sans-serif</code></p>
                 <div className="mb-3 rounded-lg border border-plrei-bg-border bg-white p-3" style={{ fontFamily: 'Aptos, Calibri, sans-serif' }}>
@@ -612,7 +647,7 @@ export default async function BrandPage() {
                 </ul>
               </div>
               <div className="card border-t-4" style={{ borderTopColor: '#3F4042' }}>
-                <div className="mb-2 font-bold" style={{ color: '#000080' }}>Signage And Labels</div>
+                <div className="card-title-main">Signage And Labels</div>
                 <p className="mb-2">Use for operational tags, equipment labels, and signage-only copy.</p>
                 <p className="text-sm mb-3" style={{ color: '#4A4A4B' }}>
                   Font stack: <code>"Microsoft Tai Le", "Microsoft New Tai Lue", sans-serif</code>
@@ -631,8 +666,44 @@ export default async function BrandPage() {
               </div>
             </div>
 
+            <div className="card mb-6">
+              <div className="card-title-main">Recommended Size And Weight Ranges</div>
+              <p className="section-body mb-4">
+                These are recommended ranges for consistency and readability across media, not strict locked values.
+              </p>
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="rounded-lg border border-plrei-bg-border bg-white p-3">
+                  <div className="card-title-sub mb-2">Web And App UI</div>
+                  <ul className="space-y-1.5 text-sm">
+                    <li>Section Heading: 30-36px / 800</li>
+                    <li>Card Heading: 20-24px / 700</li>
+                    <li>Button/Control Label: 16px / 600</li>
+                    <li>Body Copy: 16px / 400</li>
+                    <li>Helper Text: 14px / 400</li>
+                  </ul>
+                </div>
+                <div className="rounded-lg border border-plrei-bg-border bg-white p-3">
+                  <div className="card-title-sub mb-2">Print And Email</div>
+                  <ul className="space-y-1.5 text-sm">
+                    <li>Document Header: 26-30px / 700</li>
+                    <li>Subheader: 20-22px / 600</li>
+                    <li>Paragraph Copy: 16px / 400</li>
+                    <li>Footer/Meta: 14px / 400</li>
+                  </ul>
+                </div>
+                <div className="rounded-lg border border-plrei-bg-border bg-white p-3">
+                  <div className="card-title-sub mb-2">Signage And Labels</div>
+                  <ul className="space-y-1.5 text-sm">
+                    <li>Primary Header: 28-32px / 600</li>
+                    <li>Secondary Label: 20-22px / 500</li>
+                    <li>Support Line: 16px / 500</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
             <div className="card">
-              <div className="font-bold mb-2" style={{ color: '#000080' }}>Important Relationship To Logo Rules</div>
+              <div className="card-title-main">Important Relationship To Logo Rules</div>
               <p className="section-body">
                 Typography rules do not override logo rules. The PLREI wordmark is fixed vector artwork and must never be
                 recreated as live text in any font.
@@ -643,7 +714,7 @@ export default async function BrandPage() {
 
         <section id="iconography" className="border-b border-plrei-bg-border">
           <div className="max-w-5xl mx-auto px-6 py-14">
-            <p className="section-label">05 - Iconography</p>
+            <p className="section-label text-sm">05 - Iconography</p>
             <h2 className="section-title">Email Signature Icons</h2>
             <div
               className="rounded-xl border mb-8 p-5"
@@ -660,23 +731,140 @@ export default async function BrandPage() {
             <div className="grid sm:grid-cols-2 gap-5 mb-6">
               {ICONS.map((icon) => (
                 <div key={icon.name} className="card">
-                  <div className="flex items-center gap-3 mb-3">
-                    <FallbackImg
-                      src={resolvedIconUrls[icon.fileName] ?? getPreferredEmailSignatureAssetUrl(icon.fileName)}
-                      fallbackSrc={getLegacyEmailSignatureAssetUrl(icon.fileName)}
-                      alt={`${icon.name} icon`}
-                      width={18}
-                      height={18}
-                      className=""
-                    />
-                    <div>{icon.name}</div>
+                  <div className="mb-3 flex items-center gap-2.5">
+                    <span className="inline-flex h-8 w-8 items-center justify-center shrink-0">
+                      <FallbackImg
+                        src={resolvedIconUrls[icon.fileName] ?? getPreferredEmailSignatureAssetUrl(icon.fileName)}
+                        fallbackSrc={getLegacyEmailSignatureAssetUrl(icon.fileName)}
+                        alt={`${icon.name} icon`}
+                        width={18}
+                        height={18}
+                        className="block"
+                      />
+                    </span>
+                    <div className="card-title-main mb-0 leading-none">{icon.name}</div>
                   </div>
+                  <p className="text-base leading-relaxed" style={{ color: '#4A4A4B' }}>{icon.description}</p>
                 </div>
               ))}
             </div>
 
             <div className="card mb-6">
-              <div className="mb-3">Technical Requirements</div>
+              <div className="card-title-main mb-3">PLREI Signature Standard Elements</div>
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-5">
+                <div className="rounded-lg border border-plrei-bg-border bg-white p-3">
+                  <div className="card-title-sub mb-2">1. Official Logo</div>
+                  <div className="rounded border border-plrei-bg-border bg-white p-2 flex items-center justify-center">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src="/EmailSignature/EmailSignatureLogo-V3.png"
+                      alt="PLREI signature logo preview"
+                      className="h-10 w-auto object-contain"
+                    />
+                  </div>
+                </div>
+
+                <div className="rounded-lg border border-plrei-bg-border bg-white p-3">
+                  <div className="card-title-sub mb-2">2. Name And Title</div>
+                  <div className="rounded border border-plrei-bg-border bg-white p-2">
+                    <div className="font-bold" style={{ color: '#000080' }}>Tim Kingery</div>
+                    <div className="text-sm" style={{ color: '#3F4042' }}>President</div>
+                  </div>
+                </div>
+
+                <div className="rounded-lg border border-plrei-bg-border bg-white p-3">
+                  <div className="card-title-sub mb-2">3. Blue Divider Line</div>
+                  <div className="rounded border border-plrei-bg-border bg-white p-2">
+                    <div className="h-0.5 w-full" style={{ backgroundColor: '#000080' }} />
+                  </div>
+                </div>
+
+                <div className="rounded-lg border border-plrei-bg-border bg-white p-3">
+                  <div className="card-title-sub mb-2">4. Company Line</div>
+                  <div className="rounded border border-plrei-bg-border bg-white p-2">
+                    <div className="font-semibold" style={{ color: '#000080' }}>Power Line Rent-E-Quip, Inc.</div>
+                  </div>
+                </div>
+
+                <div className="rounded-lg border border-plrei-bg-border bg-white p-3">
+                  <div className="card-title-sub mb-2">5. Contact Rows</div>
+                  <div className="rounded border border-plrei-bg-border bg-white p-2 space-y-1.5">
+                    <div className="flex items-center gap-2">
+                      <FallbackImg
+                        src={resolvedIconUrls[getEmailSignatureIconFileName('address')] ?? getPreferredEmailSignatureAssetUrl(getEmailSignatureIconFileName('address'))}
+                        fallbackSrc={getLegacyEmailSignatureAssetUrl(getEmailSignatureIconFileName('address'))}
+                        alt="Address icon sample"
+                        width={14}
+                        height={14}
+                        className="block"
+                      />
+                      <span className="text-sm" style={{ color: '#3F4042' }}>42 Noble Avenue, NE</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <FallbackImg
+                        src={resolvedIconUrls[getEmailSignatureIconFileName('phone')] ?? getPreferredEmailSignatureAssetUrl(getEmailSignatureIconFileName('phone'))}
+                        fallbackSrc={getLegacyEmailSignatureAssetUrl(getEmailSignatureIconFileName('phone'))}
+                        alt="Phone icon sample"
+                        width={14}
+                        height={14}
+                        className="block"
+                      />
+                      <span className="text-sm" style={{ color: '#3F4042' }}>Office: 540-682-2126</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <FallbackImg
+                        src={resolvedIconUrls[getEmailSignatureIconFileName('email')] ?? getPreferredEmailSignatureAssetUrl(getEmailSignatureIconFileName('email'))}
+                        fallbackSrc={getLegacyEmailSignatureAssetUrl(getEmailSignatureIconFileName('email'))}
+                        alt="Email icon sample"
+                        width={14}
+                        height={14}
+                        className="block"
+                      />
+                      <span className="text-sm" style={{ color: '#3F4042' }}>timkingery@plrei.com</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="rounded-lg border border-plrei-bg-border bg-white p-3">
+                  <div className="card-title-sub mb-2">6. Website Row</div>
+                  <div className="rounded border border-plrei-bg-border bg-white p-2">
+                    <div className="flex items-center gap-2">
+                      <FallbackImg
+                        src={resolvedIconUrls[getEmailSignatureIconFileName('link')] ?? getPreferredEmailSignatureAssetUrl(getEmailSignatureIconFileName('link'))}
+                        fallbackSrc={getLegacyEmailSignatureAssetUrl(getEmailSignatureIconFileName('link'))}
+                        alt="Website icon sample"
+                        width={14}
+                        height={14}
+                        className="block"
+                      />
+                      <span className="text-sm" style={{ color: '#000080' }}>www.plrei.com</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="rounded-lg border border-plrei-bg-border bg-white p-4 mb-5">
+                <div className="card-title-sub mb-3">Full Signature Preview</div>
+                <div className="rounded border border-plrei-bg-border bg-white p-4 overflow-x-auto">
+                  <div
+                    dangerouslySetInnerHTML={{
+                      __html: buildSignatureHtml(HOMEPAGE_TIM_SIGNATURE_PREVIEW, signaturePreviewAssetUrls),
+                    }}
+                  />
+                </div>
+              </div>
+
+              <ul className="space-y-2">
+                <li className="flex gap-2"><span>+</span><span>Use only the official PLREI signature logo asset (EmailSignatureLogo-V3.png).</span></li>
+                <li className="flex gap-2"><span>+</span><span>Keep this structure in order: logo, person name/title, company line, then icon-based contact rows.</span></li>
+                <li className="flex gap-2"><span>+</span><span>Include standard contact rows where applicable: address, office/mobile/fax, email, and website.</span></li>
+                <li className="flex gap-2"><span>+</span><span>Use approved icon assets and keep every icon at 18x18 in final generated signatures.</span></li>
+                <li className="flex gap-2"><span>x</span><span>Do not swap the logo, recolor it, or replace standard elements with custom branding blocks.</span></li>
+              </ul>
+            </div>
+
+            <div className="card mb-6">
+              <div className="card-title-main mb-3">Technical Requirements</div>
               <ul className="space-y-2">
                 <li className="flex gap-2"><span>+</span><span>Icons must be navy-on-white approved assets only.</span></li>
                 <li className="flex gap-2"><span>+</span><span>Render every icon at exactly 18x18 pixels.</span></li>
@@ -689,24 +877,24 @@ export default async function BrandPage() {
 
         <section id="applications" className="bg-plrei-bg-light border-b border-plrei-bg-border">
           <div className="max-w-5xl mx-auto px-6 py-14">
-            <p className="section-label">06 - Applications</p>
+            <p className="section-label text-sm">06 - Applications</p>
             <h2 className="section-title">Operational Usage</h2>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
               <div className="card border-t-4" style={{ borderTopColor: '#F5C518' }}>
-                <div className="mb-2">Email Signature Tool</div>
+                <div className="text-2xl font-extrabold leading-tight mb-2" style={{ color: '#000080' }}>Email Signature Tool</div>
                 <p className="mb-4">Generate compliant employee signatures using approved logo/icon assets.</p>
                 <a href="/email-signature" className="inline-block px-4 py-2 rounded" style={{ backgroundColor: '#F5C518' }}>
                   Open Signature Generator
                 </a>
               </div>
               <div className="card border-t-4" style={{ borderTopColor: '#000080' }}>
-                <div className="mb-2">Logo Asset Library</div>
+                <div className="text-2xl font-extrabold leading-tight mb-2" style={{ color: '#000080' }}>Logo Asset Library</div>
                 <p className="">
                   Use only files from the approved PLREI logo source directory and its controlled exports.
                 </p>
               </div>
               <div className="card border-t-4" style={{ borderTopColor: '#3F4042' }}>
-                <div className="mb-2">AI Memory Guidance</div>
+                <div className="text-2xl font-extrabold leading-tight mb-2" style={{ color: '#000080' }}>AI Memory Guidance</div>
                 <p className="mb-4">
                   Review a condensed, AI-friendly summary of the official guidelines and copy it for reuse in tools and prompts.
                 </p>

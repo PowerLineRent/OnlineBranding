@@ -62,6 +62,16 @@ body {
     @apply bg-white border border-plrei-bg-border rounded-xl p-6;
   }
 
+  .card-title-main {
+    @apply text-xl font-extrabold leading-tight mb-2;
+    color: #000080;
+  }
+
+  .card-title-sub {
+    @apply text-base font-bold leading-tight mb-1;
+    color: #000080;
+  }
+
   /* Yellow-accented Do tag */
   .do-tag {
     @apply inline-block text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded mb-3;

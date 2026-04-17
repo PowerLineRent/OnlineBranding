@@ -39,9 +39,9 @@ export default function ColorSwatch({ name, hex, usage, light = false }: ColorSw
         </span>
       </div>
       <div className="bg-white p-3">
-        <div className="">{name}</div>
-        <div className="mb-1">{hex}</div>
-        <div className="">{usage}</div>
+        <div className="text-xl font-extrabold leading-tight mb-1" style={{ color: '#000080' }}>{name}</div>
+        <div className="text-base font-semibold mb-2" style={{ color: '#3F4042' }}>{hex}</div>
+        <div className="text-base leading-relaxed" style={{ color: '#4A4A4B' }}>{usage}</div>
       </div>
     </button>
   );

@@ -54,6 +54,12 @@ TYPOGRAPHY STANDARDS
 - Do not mix signage font stack with body-copy stack.
 - Typography rules never override the fixed vector artwork rule for the logo/wordmark.
 
+TYPOGRAPHY SIZE/WEIGHT RECOMMENDATIONS (NOT STRICT APPROVALS)
+- Treat these as recommended ranges for consistency; adjust slightly for context/layout when needed.
+- Web/UI: Section headings 30-36px / 800; card headings 20-24px / 700; control labels 16px / 600; body copy 16px / 400; helper text 14px / 400.
+- Print/email: document headers 26-30px / 700; subheaders 20-22px / 600; paragraph copy 16px / 400; footer/meta 14px / 400.
+- Signage: primary tag headers 28-32px / 600; secondary labels 20-22px / 500; support lines 16px / 500.
+
 ICONOGRAPHY (EMAIL SIGNATURE)
 - Use only official PLREI navy-on-white icon assets.
 - Approved icons: Address, Phone, Email, Link.
