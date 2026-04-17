@@ -32,176 +32,252 @@ const APPROVED_COLOR_SYSTEM = [
     light: false },
 ] as const;
 
-const AUTHORIZED_LOGO_FILE_COUNT = 62;
+type LogoVariant = {
+  name: string;
+  preview: string;
+  files: string[];
+  context?: string;
+  guidance?: string;
+};
 
-const AUTHORIZED_LOGO_GROUPS = [
+type LogoSection = {
+  name: string;
+  context: string;
+  guidance: string;
+  variants: LogoVariant[];
+};
+
+const AUTHORIZED_LOGO_SECTIONS: LogoSection[] = [
   {
     name: 'Primary Lockup',
-    preview: '/logos/authorized/PLREI Lightning.svg',
     context: 'Default logo treatment for general brand use on light backgrounds.',
     guidance: 'Use for websites, internal docs, and presentations where the full wordmark is preferred.',
-    files: [
-      '/logos/authorized/PLREI Lightning.svg',
-      '/logos/authorized/PLREI Lightning.png',
-      '/logos/authorized/PLREI Lightning.jpg',
+    variants: [
+      {
+        name: 'White style (with glow)',
+        preview: '/logos/authorized/PLREI Lightning.svg',
+        files: [
+          '/logos/authorized/PLREI Lightning.svg',
+          '/logos/authorized/PLREI Lightning.png',
+          '/logos/authorized/PLREI Lightning.jpg',
+        ],
+      },
+      {
+        name: 'Blue style (with glow)',
+        preview: '/logos/authorized/PLREI Lightning (Blue).svg',
+        files: [
+          '/logos/authorized/PLREI Lightning (Blue).svg',
+          '/logos/authorized/PLREI Lightning (Blue).png',
+          '/logos/authorized/PLREI Lightning (Blue).jpg',
+        ],
+      },
+      {
+        name: 'White style (no glow)',
+        preview: '/logos/authorized/PLREI Lightning without Glow.svg',
+        files: [
+          '/logos/authorized/PLREI Lightning without Glow.svg',
+          '/logos/authorized/PLREI Lightning without Glow.png',
+          '/logos/authorized/PLREI Lightning without Glow.jpg',
+        ],
+      },
+      {
+        name: 'Blue style (no glow)',
+        preview: '/logos/authorized/PLREI Lightning (Blue) without Glow.svg',
+        files: [
+          '/logos/authorized/PLREI Lightning (Blue) without Glow.svg',
+          '/logos/authorized/PLREI Lightning (Blue) without Glow.png',
+          '/logos/authorized/PLREI Lightning (Blue) without Glow.jpg',
+        ],
+      },
     ],
   },
   {
-    name: 'Primary Lockup (Blue)',
-    preview: '/logos/authorized/PLREI Lightning (Blue).svg',
-    context: 'Blue wordmark treatment for applications requiring explicit blue branding.',
-    guidance: 'Use when brand navy emphasis is required and contrast remains compliant.',
-    files: [
-      '/logos/authorized/PLREI Lightning (Blue).svg',
-      '/logos/authorized/PLREI Lightning (Blue).png',
-      '/logos/authorized/PLREI Lightning (Blue).jpg',
-    ],
-  },
-  {
-    name: 'Mark Only (No Name)',
-    preview: '/logos/authorized/PLREI Lightning No Name.svg',
+    name: 'Mark Only',
     context: 'Lightning symbol only for avatars, badges, and compact placements.',
     guidance: 'Use only when full wordmark is not legible at target size.',
-    files: [
-      '/logos/authorized/PLREI Lightning No Name.svg',
-      '/logos/authorized/PLREI Lightning No Name.png',
-      '/logos/authorized/PLREI Lightning No Name.jpg',
-      '/logos/authorized/PLREI Lightning (Blue) No Name.svg',
-      '/logos/authorized/PLREI Lightning (Blue) No Name.png',
-      '/logos/authorized/PLREI Lightning (Blue) No Name.jpg',
-    ],
-  },
-  {
-    name: 'No-Glow Lockup',
-    preview: '/logos/authorized/PLREI Lightning without Glow.svg',
-    context: 'Flat treatment optimized for print and constrained reproduction.',
-    guidance: 'Preferred when glow effects are not reliable in output medium.',
-    files: [
-      '/logos/authorized/PLREI Lightning without Glow.svg',
-      '/logos/authorized/PLREI Lightning without Glow.png',
-      '/logos/authorized/PLREI Lightning without Glow.jpg',
-      '/logos/authorized/PLREI Lightning (Blue) without Glow.svg',
-      '/logos/authorized/PLREI Lightning (Blue) without Glow.png',
-      '/logos/authorized/PLREI Lightning (Blue) without Glow.jpg',
-    ],
-  },
-  {
-    name: 'No-Glow Mark Only',
-    preview: '/logos/authorized/PLREI Lightning without Glow No Name.svg',
-    context: 'Flat symbol-only treatment for very small or utility spaces.',
-    guidance: 'Use in compact placements where full lockup cannot be read clearly.',
-    files: [
-      '/logos/authorized/PLREI Lightning without Glow No Name.svg',
-      '/logos/authorized/PLREI Lightning without Glow No Name.png',
-      '/logos/authorized/PLREI Lightning without Glow No Name.jpg',
-      '/logos/authorized/PLREI Lightning (Blue) without Glow No Name.svg',
-      '/logos/authorized/PLREI Lightning (Blue) without Glow No Name.png',
-      '/logos/authorized/PLREI Lightning (Blue) without Glow No Name.jpg',
+    variants: [
+      {
+        name: 'White style (with glow)',
+        preview: '/logos/authorized/PLREI Lightning No Name.svg',
+        files: [
+          '/logos/authorized/PLREI Lightning No Name.svg',
+          '/logos/authorized/PLREI Lightning No Name.png',
+          '/logos/authorized/PLREI Lightning No Name.jpg',
+        ],
+      },
+      {
+        name: 'Blue style (with glow)',
+        preview: '/logos/authorized/PLREI Lightning (Blue) No Name.svg',
+        files: [
+          '/logos/authorized/PLREI Lightning (Blue) No Name.svg',
+          '/logos/authorized/PLREI Lightning (Blue) No Name.png',
+          '/logos/authorized/PLREI Lightning (Blue) No Name.jpg',
+        ],
+      },
+      {
+        name: 'White style (no glow)',
+        preview: '/logos/authorized/PLREI Lightning without Glow No Name.svg',
+        files: [
+          '/logos/authorized/PLREI Lightning without Glow No Name.svg',
+          '/logos/authorized/PLREI Lightning without Glow No Name.png',
+          '/logos/authorized/PLREI Lightning without Glow No Name.jpg',
+        ],
+      },
+      {
+        name: 'Blue style (no glow)',
+        preview: '/logos/authorized/PLREI Lightning (Blue) without Glow No Name.svg',
+        files: [
+          '/logos/authorized/PLREI Lightning (Blue) without Glow No Name.svg',
+          '/logos/authorized/PLREI Lightning (Blue) without Glow No Name.png',
+          '/logos/authorized/PLREI Lightning (Blue) without Glow No Name.jpg',
+        ],
+      },
     ],
   },
   {
     name: 'Crest Lockup',
-    preview: '/logos/authorized/PLREI Lightning with Crest.svg',
     context: 'Formal crest-inclusive lockup for official or ceremonial materials.',
     guidance: 'Use on documents and assets that require the crest treatment.',
-    files: [
-      '/logos/authorized/PLREI Lightning with Crest.svg',
-      '/logos/authorized/PLREI Lightning with Crest.png',
-      '/logos/authorized/PLREI Lightning with Crest.jpg',
+    variants: [
+      {
+        name: 'With phone and web',
+        preview: '/logos/authorized/PLREI Lightning Phone Number and Website with Crest.svg',
+        files: [
+          '/logos/authorized/PLREI Lightning Phone Number and Website with Crest.svg',
+          '/logos/authorized/PLREI Lightning Phone Number and Website with Crest.png',
+          '/logos/authorized/PLREI Lightning Phone Number and Website with Crest.jpg',
+        ],
+      },
+      {
+        name: 'Without phone and web',
+        preview: '/logos/authorized/PLREI Lightning with Crest.svg',
+        files: [
+          '/logos/authorized/PLREI Lightning with Crest.svg',
+          '/logos/authorized/PLREI Lightning with Crest.png',
+          '/logos/authorized/PLREI Lightning with Crest.jpg',
+        ],
+      },
     ],
   },
   {
-    name: 'Full Lockup (Phone + Website)',
-    preview: '/logos/authorized/PLREI Lightning Phone Number and Website.svg',
+    name: 'Full Lockup with Phone & Web',
     context: 'Operational lockup including contact details for external/public contexts.',
     guidance: 'Use on vehicles, signage, and collateral where direct contact details are required.',
-    files: [
-      '/logos/authorized/PLREI Lightning Phone Number and Website.svg',
-      '/logos/authorized/PLREI Lightning Phone Number and Website.png',
-      '/logos/authorized/PLREI Lightning Phone Number and Website.jpg',
-      '/logos/authorized/PLREI Lightning Phone Number and Website (Blue).svg',
-      '/logos/authorized/PLREI Lightning Phone Number and Website (Blue).png',
-      '/logos/authorized/PLREI Lightning Phone Number and Website (Blue).jpg',
+    variants: [
+      {
+        name: 'White style (with glow)',
+        preview: '/logos/authorized/PLREI Lightning Phone Number and Website.svg',
+        files: [
+          '/logos/authorized/PLREI Lightning Phone Number and Website.svg',
+          '/logos/authorized/PLREI Lightning Phone Number and Website.png',
+          '/logos/authorized/PLREI Lightning Phone Number and Website.jpg',
+        ],
+      },
+      {
+        name: 'Blue style (with glow)',
+        preview: '/logos/authorized/PLREI Lightning Phone Number and Website (Blue).svg',
+        files: [
+          '/logos/authorized/PLREI Lightning Phone Number and Website (Blue).svg',
+          '/logos/authorized/PLREI Lightning Phone Number and Website (Blue).png',
+          '/logos/authorized/PLREI Lightning Phone Number and Website (Blue).jpg',
+        ],
+      },
+      {
+        name: 'White style (no glow)',
+        preview: '/logos/authorized/PLREI Lightning Phone Number and Website without Glow.svg',
+        files: [
+          '/logos/authorized/PLREI Lightning Phone Number and Website without Glow.svg',
+          '/logos/authorized/PLREI Lightning Phone Number and Website without Glow.png',
+          '/logos/authorized/PLREI Lightning Phone Number and Website without Glow.jpg',
+        ],
+      },
+      {
+        name: 'Blue style (no glow)',
+        preview: '/logos/authorized/PLREI Lightning Phone Number and Website (Blue) without Glow.svg',
+        files: [
+          '/logos/authorized/PLREI Lightning Phone Number and Website (Blue) without Glow.svg',
+          '/logos/authorized/PLREI Lightning Phone Number and Website (Blue) without Glow.png',
+          '/logos/authorized/PLREI Lightning Phone Number and Website (Blue) without Glow.jpg',
+        ],
+      },
     ],
   },
   {
-    name: 'Full Lockup No-Glow',
-    preview: '/logos/authorized/PLREI Lightning Phone Number and Website without Glow.svg',
-    context: 'Print-safe no-glow variation of the contact lockup.',
-    guidance: 'Use for fabrication, print, and systems where glow effects are unsuitable.',
-    files: [
-      '/logos/authorized/PLREI Lightning Phone Number and Website without Glow.svg',
-      '/logos/authorized/PLREI Lightning Phone Number and Website without Glow.png',
-      '/logos/authorized/PLREI Lightning Phone Number and Website without Glow.jpg',
-      '/logos/authorized/PLREI Lightning Phone Number and Website (Blue) without Glow.svg',
-      '/logos/authorized/PLREI Lightning Phone Number and Website (Blue) without Glow.png',
-      '/logos/authorized/PLREI Lightning Phone Number and Website (Blue) without Glow.jpg',
-    ],
-  },
-  {
-    name: 'Full Lockup With Crest',
-    preview: '/logos/authorized/PLREI Lightning Phone Number and Website with Crest.svg',
+    name: 'Full Lockup with Crest & Phone & Web',
     context: 'Contact lockup with crest for formal external applications.',
     guidance: 'Reserve for official fleet/signage uses requiring both contact details and crest.',
-    files: [
-      '/logos/authorized/PLREI Lightning Phone Number and Website with Crest.svg',
-      '/logos/authorized/PLREI Lightning Phone Number and Website with Crest.png',
-      '/logos/authorized/PLREI Lightning Phone Number and Website with Crest.jpg',
+    variants: [
+      {
+        name: 'All elements combined',
+        preview: '/logos/authorized/PLREI Lightning Phone Number and Website with Crest.svg',
+        files: [
+          '/logos/authorized/PLREI Lightning Phone Number and Website with Crest.svg',
+          '/logos/authorized/PLREI Lightning Phone Number and Website with Crest.png',
+          '/logos/authorized/PLREI Lightning Phone Number and Website with Crest.jpg',
+        ],
+      },
     ],
   },
   {
-    name: 'Special Purpose - Return Address',
-    preview: '/logos/authorized/Special Purpose Logos/Return Address/PLREI Return Address.svg',
-    context: 'Return-address signature mark for envelopes and mailing collateral.',
-    guidance: 'Use only in addressing workflows where compact return identity is needed.',
-    files: [
-      '/logos/authorized/Special Purpose Logos/Return Address/PLREI Return Address.svg',
-      '/logos/authorized/Special Purpose Logos/Return Address/PLREI Return Address.png',
-      '/logos/authorized/Special Purpose Logos/Return Address/PLREI Return Address.jpg',
-      '/logos/authorized/Special Purpose Logos/Return Address/PLREI Return Address.ai',
-      '/logos/authorized/Special Purpose Logos/Return Address/PLREI Return Address.eps',
+    name: 'Special Purpose',
+    context: 'Special-purpose marks are reserved for workflow-specific operational uses.',
+    guidance: 'Phone and web contact details always appear together as a paired lockup and are not split into separate marks.',
+    variants: [
+      {
+        name: 'Return Address',
+        preview: '/logos/authorized/Special Purpose Logos/Return Address/PLREI Return Address.svg',
+        context: 'Return-address signature mark for envelopes and mailing collateral.',
+        guidance: 'Use only in addressing workflows where compact return identity is needed.',
+        files: [
+          '/logos/authorized/Special Purpose Logos/Return Address/PLREI Return Address.svg',
+          '/logos/authorized/Special Purpose Logos/Return Address/PLREI Return Address.png',
+          '/logos/authorized/Special Purpose Logos/Return Address/PLREI Return Address.jpg',
+          '/logos/authorized/Special Purpose Logos/Return Address/PLREI Return Address.ai',
+          '/logos/authorized/Special Purpose Logos/Return Address/PLREI Return Address.eps',
+        ],
+      },
+      {
+        name: 'Trucks Rented From',
+        preview: '/logos/authorized/Special Purpose Logos/Trucks Rented From/PLREI Rented From.svg',
+        context: 'Vehicle-specific compliance mark for rental/fleet identification.',
+        guidance: 'Apply to truck decals and transport labeling where this language is required.',
+        files: [
+          '/logos/authorized/Special Purpose Logos/Trucks Rented From/PLREI Rented From.svg',
+          '/logos/authorized/Special Purpose Logos/Trucks Rented From/PLREI Rented From.png',
+          '/logos/authorized/Special Purpose Logos/Trucks Rented From/PLREI Rented From.jpg',
+          '/logos/authorized/Special Purpose Logos/Trucks Rented From/PLREI Rented From.ai',
+          '/logos/authorized/Special Purpose Logos/Trucks Rented From/PLREI Rented From.eps',
+        ],
+      },
+      {
+        name: 'USDOT',
+        preview: '/logos/authorized/Special Purpose Logos/Trucks Rented From/PLREI USDOT.svg',
+        context: 'Regulatory USDOT signature variant used for fleet/legal transport labeling.',
+        guidance: 'Use where transport regulation requires explicit USDOT identification.',
+        files: [
+          '/logos/authorized/Special Purpose Logos/Trucks Rented From/PLREI USDOT.svg',
+          '/logos/authorized/Special Purpose Logos/Trucks Rented From/PLREI USDOT.png',
+          '/logos/authorized/Special Purpose Logos/Trucks Rented From/PLREI USDOT.jpg',
+          '/logos/authorized/Special Purpose Logos/Trucks Rented From/PLREI USDOT.ai',
+          '/logos/authorized/Special Purpose Logos/Trucks Rented From/PLREI USDOT.eps',
+        ],
+      },
+      {
+        name: 'Website Label',
+        preview: '/logos/authorized/Special Purpose Logos/Trucks Rented From/PLREI Website.svg',
+        context: 'Fleet/operational website-only mark variant.',
+        guidance: 'Use where only the website line is required in transport or utility labeling.',
+        files: [
+          '/logos/authorized/Special Purpose Logos/Trucks Rented From/PLREI Website.svg',
+          '/logos/authorized/Special Purpose Logos/Trucks Rented From/PLREI Website.png',
+          '/logos/authorized/Special Purpose Logos/Trucks Rented From/PLREI Website.jpg',
+          '/logos/authorized/Special Purpose Logos/Trucks Rented From/PLREI Website.ai',
+          '/logos/authorized/Special Purpose Logos/Trucks Rented From/PLREI Website.eps',
+        ],
+      },
     ],
   },
-  {
-    name: 'Special Purpose - Trucks Rented From',
-    preview: '/logos/authorized/Special Purpose Logos/Trucks Rented From/PLREI Rented From.svg',
-    context: 'Vehicle-specific compliance mark for rental/fleet identification.',
-    guidance: 'Apply to truck decals and transport labeling where this language is required.',
-    files: [
-      '/logos/authorized/Special Purpose Logos/Trucks Rented From/PLREI Rented From.svg',
-      '/logos/authorized/Special Purpose Logos/Trucks Rented From/PLREI Rented From.png',
-      '/logos/authorized/Special Purpose Logos/Trucks Rented From/PLREI Rented From.jpg',
-      '/logos/authorized/Special Purpose Logos/Trucks Rented From/PLREI Rented From.ai',
-      '/logos/authorized/Special Purpose Logos/Trucks Rented From/PLREI Rented From.eps',
-    ],
-  },
-  {
-    name: 'Special Purpose - USDOT',
-    preview: '/logos/authorized/Special Purpose Logos/Trucks Rented From/PLREI USDOT.svg',
-    context: 'Regulatory USDOT signature variant used for fleet/legal transport labeling.',
-    guidance: 'Use where transport regulation requires explicit USDOT identification.',
-    files: [
-      '/logos/authorized/Special Purpose Logos/Trucks Rented From/PLREI USDOT.svg',
-      '/logos/authorized/Special Purpose Logos/Trucks Rented From/PLREI USDOT.png',
-      '/logos/authorized/Special Purpose Logos/Trucks Rented From/PLREI USDOT.jpg',
-      '/logos/authorized/Special Purpose Logos/Trucks Rented From/PLREI USDOT.ai',
-      '/logos/authorized/Special Purpose Logos/Trucks Rented From/PLREI USDOT.eps',
-    ],
-  },
-  {
-    name: 'Special Purpose - Website Label',
-    preview: '/logos/authorized/Special Purpose Logos/Trucks Rented From/PLREI Website.svg',
-    context: 'Fleet/operational website-only mark variant.',
-    guidance: 'Use where only the website line is required in transport or utility labeling.',
-    files: [
-      '/logos/authorized/Special Purpose Logos/Trucks Rented From/PLREI Website.svg',
-      '/logos/authorized/Special Purpose Logos/Trucks Rented From/PLREI Website.png',
-      '/logos/authorized/Special Purpose Logos/Trucks Rented From/PLREI Website.jpg',
-      '/logos/authorized/Special Purpose Logos/Trucks Rented From/PLREI Website.ai',
-      '/logos/authorized/Special Purpose Logos/Trucks Rented From/PLREI Website.eps',
-    ],
-  },
-] as const;
+];
 
 const LETTERHEAD_SPECIFICATIONS = [
   'Template file: PLREI Letterhead.dotx',
@@ -282,35 +358,42 @@ export default async function BrandPage() {
             <p className="section-label">02 - Authorized Logos</p>
             <h2 className="section-title">Complete Logo Library And Letterhead</h2>
             <p className="section-body mb-8">
-              This catalog includes every approved logo asset currently available in the PLREI source library
-              ({AUTHORIZED_LOGO_FILE_COUNT} files, including vector/raster and special-purpose marks).
+              This catalog groups logo families by core type so each approved variant can be referenced in one place.
               Use each variant only in its intended context.
             </p>
 
-            <div className="grid sm:grid-cols-2 gap-5 mb-8">
-              {AUTHORIZED_LOGO_GROUPS.map((logoGroup) => (
-                <div key={logoGroup.name} className="card p-0 overflow-hidden">
-                  <div className="h-40 flex items-center justify-center p-4" style={{ backgroundColor: '#FFFFFF' }}>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={encodeURI(logoGroup.preview)} alt={`PLREI ${logoGroup.name}`} className="max-h-28 max-w-full object-contain" />
-                  </div>
-                  <div className="p-4 bg-white">
-                    <div className="mb-1">{logoGroup.name}</div>
-                    <p className="mb-2">{logoGroup.context}</p>
-                    <p className="mb-3">{logoGroup.guidance}</p>
-                    <div className="flex flex-wrap gap-2">
-                      {logoGroup.files.map((filePath) => (
-                        <a
-                          key={filePath}
-                          href={encodeURI(filePath)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="px-2 py-1 rounded border border-plrei-bg-border text-xs hover:bg-plrei-bg-light"
-                        >
-                          {filePath.split('/').pop()}
-                        </a>
-                      ))}
-                    </div>
+            <div className="space-y-6 mb-8">
+              {AUTHORIZED_LOGO_SECTIONS.map((section) => (
+                <div key={section.name} className="card p-5">
+                  <h3 className="text-xl mb-2">{section.name}</h3>
+                  <p className="mb-2">{section.context}</p>
+                  <p className="mb-4">{section.guidance}</p>
+
+                  <div className="grid sm:grid-cols-2 gap-5">
+                    {section.variants.map((variant) => (
+                      <div key={`${section.name}-${variant.name}`} className="rounded-lg border border-plrei-bg-border bg-white p-4">
+                        <div className="h-36 flex items-center justify-center p-3 mb-3" style={{ backgroundColor: '#FFFFFF' }}>
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={encodeURI(variant.preview)} alt={`PLREI ${section.name} ${variant.name}`} className="max-h-24 max-w-full object-contain" />
+                        </div>
+                        <div className="mb-1">{variant.name}</div>
+                        {variant.context && <p className="mb-2">{variant.context}</p>}
+                        {variant.guidance && <p className="mb-3">{variant.guidance}</p>}
+                        <div className="flex flex-wrap gap-2">
+                          {variant.files.map((filePath) => (
+                            <a
+                              key={filePath}
+                              href={encodeURI(filePath)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="px-2 py-1 rounded border border-plrei-bg-border text-xs hover:bg-plrei-bg-light"
+                            >
+                              {filePath.split('/').pop()}
+                            </a>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               ))}
