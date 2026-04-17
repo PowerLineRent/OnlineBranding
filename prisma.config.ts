@@ -4,5 +4,7 @@ export default defineConfig({
   datasource: {
     url: process.env.POSTGRES_PRISMA_URL || process.env.DATABASE_URL || '',
   },
-  seed: 'node prisma/seed.js',
+  migrations: {
+    seed: 'node prisma/seed.js',
+  },
 });
