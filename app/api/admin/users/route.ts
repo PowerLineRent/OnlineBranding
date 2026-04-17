@@ -20,8 +20,9 @@ export async function GET() {
     orderBy: [{ role: 'asc' }, { email: 'asc' }],
   });
 
+  type UserRow = (typeof users)[number];
   return NextResponse.json({
-    users: users.map((user) => ({
+    users: users.map((user: UserRow) => ({
       id: user.id,
       email: user.email,
       role: user.role,

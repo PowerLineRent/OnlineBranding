@@ -44,8 +44,9 @@ export async function GET() {
     orderBy: [{ type: 'asc' }, { providerKey: 'asc' }],
   });
 
+  type ProviderRow = (typeof rows)[number];
   return NextResponse.json({
-    providers: rows.map((row) => ({
+    providers: rows.map((row: ProviderRow) => ({
       providerKey: row.providerKey,
       type: row.type,
       displayName: row.displayName,
