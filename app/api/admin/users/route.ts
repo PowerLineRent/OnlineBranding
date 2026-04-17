@@ -12,6 +12,7 @@ export async function GET() {
   const users = await prisma.user.findMany({
     select: {
       id: true,
+      name: true,
       email: true,
       role: true,
       lastLoginAt: true,
@@ -24,6 +25,7 @@ export async function GET() {
   return NextResponse.json({
     users: users.map((user: UserRow) => ({
       id: user.id,
+      name: user.name ?? null,
       email: user.email,
       role: user.role,
       lastLoginAt: user.lastLoginAt?.toISOString() ?? null,

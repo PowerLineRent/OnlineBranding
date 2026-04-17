@@ -339,7 +339,11 @@ export default async function BrandPage() {
 
   return (
     <>
-      <SectionNav userEmail={session?.user?.email ?? undefined} isAdmin={isAdminSession(session)} />
+      <SectionNav
+        userEmail={session?.user?.email ?? undefined}
+        userName={session?.user?.name ?? undefined}
+        isAdmin={isAdminSession(session)}
+      />
 
       <main className="bg-white">
         <section style={{ backgroundColor: '#000080' }}>
@@ -352,6 +356,53 @@ export default async function BrandPage() {
             <p style={{ margin: 0, color: '#FFFFFF', maxWidth: '860px', fontSize: '24px', lineHeight: 1.35 }}>
               Official standards for logo usage, color, typography, and signature iconography.
             </p>
+            <p className="mt-5 text-sm font-semibold uppercase tracking-wider" style={{ color: '#E7ECFF' }}>
+              Jump to...
+            </p>
+            <div className="mt-5 flex flex-wrap gap-2">
+              <a
+                href="#overview"
+                className="inline-flex items-center rounded border px-3 py-1.5 text-sm font-semibold transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#000080]"
+                style={{ borderColor: '#FFFFFF', color: '#FFFFFF' }}
+              >
+                Overview
+              </a>
+              <a
+                href="#logo"
+                className="inline-flex items-center rounded border px-3 py-1.5 text-sm font-semibold transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#000080]"
+                style={{ borderColor: '#FFFFFF', color: '#FFFFFF' }}
+              >
+                Logos
+              </a>
+              <a
+                href="#colors"
+                className="inline-flex items-center rounded border px-3 py-1.5 text-sm font-semibold transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#000080]"
+                style={{ borderColor: '#FFFFFF', color: '#FFFFFF' }}
+              >
+                Colors
+              </a>
+              <a
+                href="#iconography"
+                className="inline-flex items-center rounded border px-3 py-1.5 text-sm font-semibold transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#000080]"
+                style={{ borderColor: '#FFFFFF', color: '#FFFFFF' }}
+              >
+                Icons
+              </a>
+              <a
+                href="#applications"
+                className="inline-flex items-center rounded border px-3 py-1.5 text-sm font-semibold transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#000080]"
+                style={{ borderColor: '#FFFFFF', color: '#FFFFFF' }}
+              >
+                Applications
+              </a>
+              <a
+                href="/branding-memory"
+                className="inline-flex items-center rounded border px-3 py-1.5 text-sm font-semibold transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#000080]"
+                style={{ backgroundColor: '#F5C518', borderColor: '#F5C518', color: '#000080' }}
+              >
+                AI Memory
+              </a>
+            </div>
           </div>
           <div className="h-2" style={{ backgroundColor: '#F5C518' }} />
         </section>
@@ -581,6 +632,15 @@ export default async function BrandPage() {
                   Use only files from the approved PLREI logo source directory and its controlled exports.
                 </p>
               </div>
+              <div className="card border-t-4" style={{ borderTopColor: '#3F4042' }}>
+                <div className="mb-2">Branding Memory Summary</div>
+                <p className="mb-4">
+                  Review a condensed, AI-friendly summary of the official guidelines and copy it for reuse in tools and prompts.
+                </p>
+                <a href="/branding-memory" className="inline-block px-4 py-2 rounded border" style={{ borderColor: '#000080' }}>
+                  Open Branding Memory
+                </a>
+              </div>
             </div>
           </div>
         </section>
@@ -597,7 +657,3 @@ export default async function BrandPage() {
     </>
   );
 }
-
-
-
-

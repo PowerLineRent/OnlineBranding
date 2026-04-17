@@ -1,21 +1,21 @@
-import { redirect } from 'next/navigation';
+import type { Metadata } from 'next';
+import SectionNav from '@/components/SectionNav';
+import BrandingMemoryPanel from '@/components/BrandingMemoryPanel';
 import { auth } from '@/lib/auth';
 import { isAdminSession } from '@/lib/auth/admin';
-import SectionNav from '@/components/SectionNav';
-import AdminSsoPortal from '@/components/admin/AdminSsoPortal';
 
-export const dynamic = 'force-dynamic';
+export const metadata: Metadata = {
+  title: 'Branding Memory Summary',
+  description: 'AI-friendly PLREI branding memory summary for consistent and compliant output generation.',
+};
 
-export default async function AdminSsoPage() {
+export default async function BrandingMemoryPage() {
   const session = await auth();
-  if (!isAdminSession(session)) {
-    redirect('/');
-  }
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
       <SectionNav
-        showOverview={true}
+        showOverview={Boolean(session?.user)}
         userEmail={session?.user?.email ?? undefined}
         userName={session?.user?.name ?? undefined}
         isAdmin={isAdminSession(session)}
@@ -32,17 +32,21 @@ export default async function AdminSsoPage() {
             <span>Back To Home</span>
           </a>
           <h1 style={{ margin: 0, marginBottom: '12px', fontSize: '42px', fontWeight: 800, lineHeight: 1.08, color: '#F5C518' }}>
-            Admin SSO Portal
+            Branding Memory Summary
           </h1>
           <p style={{ margin: 0, color: '#E7ECFF', maxWidth: '860px', fontSize: '24px', lineHeight: 1.35 }}>
-            Manage enterprise login providers, domain routing, and user access controls.
+            AI-ready condensed guidelines for consistent brand-compliant implementation.
           </p>
         </div>
         <div className="h-2" style={{ backgroundColor: '#F5C518' }} />
       </section>
 
-      <main className="flex-1 py-8" style={{ backgroundColor: '#F9FAFB' }}>
-        <AdminSsoPortal />
+      <main className="flex-1 border-b border-plrei-bg-border">
+        <div className="max-w-5xl mx-auto px-6 py-14">
+          <p className="section-label">05 - Applications</p>
+          <h2 className="section-title">Branding Memory</h2>
+          <BrandingMemoryPanel />
+        </div>
       </main>
 
       <footer>
