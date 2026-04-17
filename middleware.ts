@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 const PUBLIC_PATHS = ['/login', '/invalid-link'];
-const PUBLIC_PREFIXES = ['/api/auth', '/api/signature-link', '/_next', '/static'];
+const PUBLIC_PREFIXES = ['/api/auth', '/api/signature-link', '/_next', '/static', '/logos', '/letterhead'];
 const PUBLIC_FILES = ['/favicon.ico', '/robots.txt', '/sitemap.xml'];
 const SESSION_COOKIE_NAMES = [
   '__Secure-authjs.session-token',

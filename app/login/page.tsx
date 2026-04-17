@@ -13,8 +13,6 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [mode, setMode] = useState<'email' | 'password'>('email');
   const [providerId, setProviderId] = useState<string | null>(null);
-  const [logoSrc, setLogoSrc] = useState('/logos/plrei-mark.svg');
-  const [hideLogo, setHideLogo] = useState(false);
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const passwordInputRef = useRef<HTMLInputElement>(null);
@@ -127,43 +125,33 @@ export default function LoginPage() {
 
   return (
     <main className="min-h-screen bg-[#f3f4f6] flex items-center justify-center p-6">
-      <div className="w-full max-w-md">
+      <div className="w-full max-w-3xl -translate-y-14">
         <div className="mb-8 flex flex-col items-center text-center">
-          <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-600 text-white shadow-sm">
-            <svg aria-hidden="true" viewBox="0 0 24 24" className="h-6 w-6 fill-none stroke-current" strokeWidth="2">
-              <rect x="4" y="10" width="16" height="10" rx="2" />
-              <path d="M8 10V7a4 4 0 018 0v3" />
-            </svg>
-          </div>
-          <h1 className="text-4xl font-semibold tracking-tight text-slate-900">Access Portal</h1>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/logos/plrei-primary.svg"
+            alt="Power Line Rent-E-Quip, Inc. Primary Lockup (Blue)"
+            className="mb-5 h-40 w-auto max-w-[min(94vw,760px)] object-contain"
+            onError={(event) => {
+              event.currentTarget.src = '/logos/plrei-primary.png';
+            }}
+          />
+          <h1
+            className="max-w-2xl"
+            style={{ margin: 0, marginBottom: '12px', fontSize: '42px', fontWeight: 800, lineHeight: 1.08, color: '#000080', hyphens: 'none' }}
+          >
+            Power Line <span className="whitespace-nowrap">Rent-E-Quip</span>, Inc. Brand Reference
+          </h1>
           <p className="mt-2 text-lg text-slate-600">Sign in to your account</p>
-          {!hideLogo && (
-            <div className="mt-4 flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={logoSrc}
-                alt="PLREI logo"
-                className="h-5 w-5 object-contain"
-                onError={() => {
-                  if (logoSrc !== '/logos/plrei-mark.png') {
-                    setLogoSrc('/logos/plrei-mark.png');
-                    return;
-                  }
-                  setHideLogo(true);
-                }}
-              />
-              <span className="text-xs font-medium tracking-wide text-slate-700">Power Line Rent-E-Quip, Inc.</span>
-            </div>
-          )}
         </div>
 
-        <div className="space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="mx-auto max-w-md space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
           {mode === 'email' && (
             <form className="space-y-4" onSubmit={onEmailSubmit}>
               <label className="block">
-                <span className="mb-2 block text-xl font-medium text-slate-800">Email</span>
+                <span className="mb-2 block text-base font-medium text-slate-800">Email</span>
                 <input
-                  className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-lg text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                  className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-base text-slate-900 outline-none transition focus:border-[#000080] focus:ring-2 focus:ring-[#000080]/20"
                   type="email"
                   name="email"
                   autoComplete="email"
@@ -174,7 +162,7 @@ export default function LoginPage() {
                 />
               </label>
               <button
-                className="w-full rounded-xl bg-blue-600 px-4 py-3 text-lg font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+                className="w-full rounded-xl bg-[#000080] px-4 py-2.5 text-base font-semibold text-white transition hover:bg-[#000066] disabled:cursor-not-allowed disabled:opacity-60"
                 disabled={submitting}
               >
                 {submitting ? 'Checking...' : 'Continue'}
@@ -185,20 +173,20 @@ export default function LoginPage() {
           {mode === 'password' && (
             <form className="space-y-4" onSubmit={onPasswordSubmit}>
               <label className="block">
-                <span className="mb-2 block text-xl font-medium text-slate-800">Email</span>
+                <span className="mb-2 block text-base font-medium text-slate-800">Email</span>
                 <input
-                  className="w-full rounded-xl border border-slate-300 bg-slate-100 px-4 py-3 text-lg text-slate-700"
+                  className="w-full rounded-xl border border-slate-300 bg-slate-100 px-4 py-2.5 text-base text-slate-700"
                   type="email"
                   value={email}
                   readOnly
                 />
               </label>
               <label className="block">
-                <span className="mb-2 block text-xl font-medium text-slate-800">Password</span>
+                <span className="mb-2 block text-base font-medium text-slate-800">Password</span>
                 <PasswordToggleField.Root className="relative">
                   <PasswordToggleField.Input
                     ref={passwordInputRef}
-                    className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 pr-24 text-lg text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                    className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 pr-24 text-base text-slate-900 outline-none transition focus:border-[#000080] focus:ring-2 focus:ring-[#000080]/20"
                     name="password"
                     autoComplete="current-password"
                     placeholder="********"
@@ -215,7 +203,7 @@ export default function LoginPage() {
                 </PasswordToggleField.Root>
               </label>
               <div className="flex items-center justify-end">
-                <span className="text-sm text-blue-600">Forgot password?</span>
+                <span className="text-sm text-[#000080]">Forgot password?</span>
               </div>
               <div className="flex items-center gap-3 pt-1">
                 <button
@@ -227,7 +215,7 @@ export default function LoginPage() {
                   Back
                 </button>
                 <button
-                  className="flex-1 rounded-xl bg-blue-600 px-4 py-3 text-lg font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="flex-1 rounded-xl bg-[#000080] px-4 py-2.5 text-base font-semibold text-white transition hover:bg-[#000066] disabled:cursor-not-allowed disabled:opacity-60"
                   disabled={submitting}
                 >
                   {submitting ? 'Signing In...' : 'Sign In'}
