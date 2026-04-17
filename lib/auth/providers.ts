@@ -140,7 +140,7 @@ export function toAuthJsOauthProvider(config: ParsedProvider): OAuthConfig<Recor
   return {
     id: config.id,
     name: config.name ?? config.id,
-    type: 'oauth',
+    type: 'oidc',
     issuer,
     clientId: config.clientId,
     clientSecret: config.clientSecret,
