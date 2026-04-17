@@ -99,7 +99,7 @@ export async function getSsoProvidersFromDb(): Promise<ParsedProvider[]> {
     type DbRow = (typeof dbProviders)[number];
     return dbProviders
       .map((row: DbRow) => fromDbRow(row))
-      .filter((provider): provider is ParsedProvider => Boolean(provider));
+      .filter((provider: ParsedProvider | null): provider is ParsedProvider => provider !== null);
   } catch (error) {
     console.warn('[auth][providers] Failed to load DB-backed SSO providers. Falling back to env JSON.', {
       message: error instanceof Error ? error.message : String(error),
