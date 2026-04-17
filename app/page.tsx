@@ -340,16 +340,24 @@ export default async function BrandPage() {
               Power Line Rent-E-Quip, Inc. is represented by approved logo files only. Never redraw, retype, recolor,
               stretch, squash, or rebuild the logo from fonts.
             </p>
-            <p className="section-body">
-              This implementation is aligned to the authoritative asset library at
+            <div className="rounded-xl border p-4" style={{ backgroundColor: '#EFF3FF', borderColor: '#B7C5EE' }}>
+              <p className="section-body mb-3">
+                This implementation is aligned to the authoritative PLREI asset library.
+              </p>
               <a
                 href="https://plrei.sharepoint.com/sites/PLREIServer/SitePages/Forms-&-Templates.aspx"
                 target="_blank"
                 rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-md border font-semibold transition-opacity hover:opacity-90"
+                style={{ backgroundColor: '#000080', borderColor: '#000080', color: '#FFFFFF' }}
               >
-                https://plrei.sharepoint.com/sites/PLREIServer/SitePages/Forms-&amp;-Templates.aspx
-              </a>.
-            </p>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 3h7m0 0v7m0-7L10 14" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5h6M5 5v14h14v-6" />
+                </svg>
+                <span>Open PLREI Forms &amp; Templates Library</span>
+              </a>
+            </div>
           </div>
         </section>
 
