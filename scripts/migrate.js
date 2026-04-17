@@ -18,14 +18,15 @@ const directUrl =
   process.env.POSTGRES_DIRECT_URL ||
   '';
 
-const isPoolerUrl = directUrl.includes(':6543') || directUrl.includes('pooler.supabase.com');
+// Port 6543 = Supabase transaction-mode pooler — advisory locks don't work there.
+// Port 5432 on pooler.supabase.com = session-mode pooler — advisory locks work fine.
+const isTransactionPooler = directUrl.includes(':6543');
 
-if (!directUrl || directUrl === process.env.POSTGRES_PRISMA_URL || isPoolerUrl) {
+if (!directUrl || directUrl === process.env.POSTGRES_PRISMA_URL || isTransactionPooler) {
   console.warn(
-    '\n[migrate] WARNING: POSTGRES_URL_NON_POOLING is not set or points to the connection pooler.\n' +
-    '[migrate] Skipping migrations — schema changes will NOT be applied until a direct connection is configured.\n' +
-    '[migrate] Set POSTGRES_URL_NON_POOLING in Vercel env vars using the direct connection string from\n' +
-    '[migrate] Supabase → Project Settings → Database → Connection string → URI (port 5432, not 6543).\n'
+    '\n[migrate] WARNING: POSTGRES_URL_NON_POOLING is not set or points to the transaction-mode pooler (port 6543).\n' +
+    '[migrate] Skipping migrations — schema changes will NOT be applied.\n' +
+    '[migrate] Use the session-mode pooler (port 5432) or a direct connection for POSTGRES_URL_NON_POOLING.\n'
   );
   process.exit(0);
 }
