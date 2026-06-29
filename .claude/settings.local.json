@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gh pr create --title 'Merge dev into main' --body ' *)",
+      "Bash(gh pr create --title 'Fix SSO OIDC discovery' --body ' *)",
+      "Bash(npx prisma *)",
+      "Bash(gh pr create --title 'Fix SSO login: OIDC userinfo, User schema, and auto-migrate on build' --body ' *)",
+      "Bash(gh pr create --title 'Fix Prisma migration baseline on Vercel' --body ' *)",
+      "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('package.json','utf8'\\)\\); console.log\\('valid'\\)\")",
+      "Bash(npm i *)",
+      "mcp__19df10a7-3c61-4715-bb3f-47604d0fb218__list_teams",
+      "mcp__19df10a7-3c61-4715-bb3f-47604d0fb218__list_deployments",
+      "mcp__19df10a7-3c61-4715-bb3f-47604d0fb218__list_projects",
+      "Bash(xargs grep *)"
+    ]
+  }
+}

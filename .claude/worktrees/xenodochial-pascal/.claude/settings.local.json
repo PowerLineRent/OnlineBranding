@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//f/PLREI-OnlineBranding/**)",
+      "Bash(npm install:*)",
+      "Bash(npm run:*)",
+      "Bash(python3 -c ':*)",
+      "Bash(python -c ':*)",
+      "Bash(cd /tmp)",
+      "Bash(python3 -c \"import pdfplumber; print\\('ok'\\)\")",
+      "Bash(python -c \"import pdfplumber; print\\('ok'\\)\")",
+      "Bash(pip install:*)",
+      "Read(//usr/**)",
+      "Read(//usr/local/**)",
+      "Bash(ls /c/Python*/python.exe)",
+      "Read(//c/Users/JackVeney/AppData/Local/Programs/**)",
+      "Bash(cmd.exe /c \"where python 2>nul & where python3 2>nul & where py 2>nul & python --version 2>nul & py --version 2>nul\")",
+      "Bash(cmd.exe /c \"where python\")",
+      "Bash(cmd.exe /c \"where py\")",
+      "Bash(\"/c/Users/JackVeney/AppData/Local/Microsoft/WindowsApps/python.exe\" --version)",
+      "Bash(\"/c/Users/JackVeney/AppData/Local/Python/pythoncore-3.14-64/python.exe\" --version)",
+      "Bash(\"/c/Users/JackVeney/AppData/Local/Python/pythoncore-3.14-64/python.exe\" -c \"import pdfplumber; print\\('pdfplumber ok'\\)\")",
+      "Bash(\"/c/Users/JackVeney/AppData/Local/Python/pythoncore-3.14-64/python.exe\" -m pip install pdfplumber)",
+      "Bash(/c/Users/JackVeney/AppData/Local/Python/pythoncore-3.14-64/python.exe -c ':*)"
+    ]
+  }
+}
