@@ -1,0 +1,55 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+    versioning-strategy: increase-if-necessary
+    groups:
+      nextjs:
+        patterns:
+          - next
+          - eslint-config-next
+      react:
+        patterns:
+          - react
+          - react-dom
+          - "@types/react"
+          - "@types/react-dom"
+      prisma:
+        patterns:
+          - prisma
+          - "@prisma/*"
+      auth:
+        patterns:
+          - next-auth
+          - "@auth/*"
+      supabase:
+        patterns:
+          - "@supabase/*"
+      tailwind:
+        patterns:
+          - tailwindcss
+          - autoprefixer
+          - postcss
+      eslint:
+        patterns:
+          - eslint
+      typescript:
+        patterns:
+          - typescript
+      tests:
+        patterns:
+          - vitest
+      node-types:
+        patterns:
+          - "@types/node"
+          - "@types/bcryptjs"
+          - "@types/pg"
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
