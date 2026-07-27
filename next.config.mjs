@@ -1,6 +1,8 @@
-import type { NextConfig } from 'next';
-
-const nextConfig: NextConfig = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  experimental: {
+    useTypeScriptCli: true,
+  },
   env: {
     // Centralized asset URL settings used by the email signature icon resolver.
     // New references should target public/EmailSignature; legacy path is retained for fallback.
