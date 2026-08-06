@@ -1,27 +1,33 @@
 name: CI
 
 on:
-  pull_request:
   push:
+  pull_request:
+
+concurrency:
+  group: tests-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
 
+env:
+  AUTH_SECRET: ci-auth-secret
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-supabase-anon-key
+  NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
+  POSTGRES_PRISMA_URL: postgresql://user:pass@localhost:5432/db
+  POSTGRES_URL_NON_POOLING: postgresql://user:pass@localhost:5432/db
+  SIGNATURE_SECRET_KEY: ci-signature-secret
+  SUPABASE_SERVICE_ROLE_KEY: ci-supabase-service-role-key
+
 jobs:
   test:
-    name: Test and build
+    name: Test
     runs-on: ubuntu-latest
-    env:
-      AUTH_SECRET: ci-auth-secret
-      NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-supabase-anon-key
-      NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
-      POSTGRES_PRISMA_URL: postgresql://user:pass@localhost:5432/db
-      POSTGRES_URL_NON_POOLING: postgresql://user:pass@localhost:5432/db
-      SIGNATURE_SECRET_KEY: ci-signature-secret
-      SUPABASE_SERVICE_ROLE_KEY: ci-supabase-service-role-key
+    timeout-minutes: 10
     steps:
       - name: Check out repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -39,6 +45,74 @@ jobs:
 
       - name: Test
         run: npm run test
+
+  type-check:
+    name: Type Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npm run typecheck
+
+  dependency-audit:
+    name: Dependency Audit (Advisory)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Audit production dependencies
+        continue-on-error: true
+        run: npm audit --omit=dev --audit-level=high
+
+  build:
+    name: Production Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs:
+      - test
+      - type-check
+      - dependency-audit
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma client
+        run: npm run prisma:generate
 
       - name: Build
         run: npm run build
