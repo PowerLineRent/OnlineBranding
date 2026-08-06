@@ -1,10 +1,14 @@
 name: Security
 
 on:
-  pull_request:
   push:
+  pull_request:
   schedule:
     - cron: "17 8 * * 1"
+
+concurrency:
+  group: security-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   actions: read
@@ -13,8 +17,9 @@ permissions:
 
 jobs:
   codeql:
-    name: CodeQL analysis
+    name: CodeQL Analysis
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
       - uses: github/codeql-action/init@v4
@@ -22,12 +27,11 @@ jobs:
           languages: javascript-typescript
           queries: security-extended,security-and-quality
       - uses: github/codeql-action/analyze@v4
-        with:
-          upload: never
 
   semgrep:
-    name: Semgrep OWASP and JavaScript scan
+    name: Semgrep OWASP and JavaScript Scan
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
       - uses: semgrep/semgrep-action@v1
@@ -38,8 +42,9 @@ jobs:
             p/nodejs
 
   gitleaks:
-    name: Secret scanning
+    name: Secret Scanning
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
       contents: read
       pull-requests: read
@@ -56,8 +61,9 @@ jobs:
           git --no-banner --redact --verbose .
 
   dependency-audit:
-    name: npm audit
+    name: npm Audit
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
