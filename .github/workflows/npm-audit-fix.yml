@@ -1,0 +1,86 @@
+name: NPM Audit Fix
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: npm-audit-fix
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+env:
+  AUTH_SECRET: ci-auth-secret
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-supabase-anon-key
+  NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
+  POSTGRES_PRISMA_URL: postgresql://user:pass@localhost:5432/db
+  POSTGRES_URL_NON_POOLING: postgresql://user:pass@localhost:5432/db
+  SIGNATURE_SECRET_KEY: ci-signature-secret
+  SUPABASE_SERVICE_ROLE_KEY: ci-supabase-service-role-key
+
+jobs:
+  npm-audit-fix:
+    name: NPM Audit Fix
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run npm audit fix across packages
+        run: npm run audit-fix
+
+      - name: Run tests
+        run: npm test --if-present
+
+      - name: Run build
+        run: npm run build --if-present
+
+      - name: Detect changes
+        id: changes
+        shell: bash
+        run: |
+          if [[ -n "$(git status --porcelain -- package.json package-lock.json)" ]]; then
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create pull request
+        if: steps.changes.outputs.has_changes == 'true'
+        uses: peter-evans/create-pull-request@v8
+        with:
+          add-paths: |
+            package.json
+            package-lock.json
+          commit-message: "chore: npm audit fix"
+          title: "chore: npm audit fix"
+          body: |
+            Automated npm audit fix.
+
+            This PR was created automatically by the NPM Audit Fix workflow.
+
+            - Dependencies were installed with `npm ci`
+            - `npm run audit-fix` was executed
+            - Tests were run if a test script exists
+            - Build was run if a build script exists
+
+            Workflow: ${{ github.workflow }}
+            Run ID: ${{ github.run_id }}
+          branch: chore/npm-audit-fix
+          delete-branch: true
+          labels: dependencies,security
