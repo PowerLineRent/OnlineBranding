@@ -14,6 +14,7 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:seed": "prisma db seed",
     "test": "vitest run",
+    "audit-fix": "npm audit fix || node -e \"console.warn('npm audit fix could not resolve every vulnerability automatically; review the output above.')\"",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
